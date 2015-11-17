@@ -31,9 +31,13 @@ Sub packsExportDataForCommence()
     Application.ScreenUpdating = False
     deleteNomComptes
     deleteTopRow
-    saveAsTabDelimTxtFile "Packs JPS et filleuls Commence export.txt"
+    saveSheetAsTabDelimTxtFile "Packs", "Packs JPS et filleuls Commence export.txt"
     Application.ScreenUpdating = True
-    MsgBox "La version .txt de la spreadsheet va être fermée. Veuillez rouvrir la version .xlsm !", vbInformation
+    closeWithoutSave
+End Sub
+
+Private Sub closeWithoutSave()
+    MsgBox "La version modifiée (sans ligne de titres) de la spreadsheet va être fermée sans être sauvée. Veuillez rouvrir la version .xlsm !", vbInformation
     ActiveWorkbook.Close savechanges:=False
 End Sub
 
@@ -41,9 +45,9 @@ End Sub
 Sub gainsExportDataForCommence()
     Application.ScreenUpdating = False
     deleteTopRow
-    saveAsTabDelimTxtFile "Gains JPS et filleuls Commence export.txt"
-    ActiveSheet.Range("A1").Select
+    saveSheetAsTabDelimTxtFile "Gains", "Gains JPS et filleuls Commence export.txt"
     Application.ScreenUpdating = True
+    closeWithoutSave
 End Sub
 
 'Formate et traite les données issues des copy/paste des listes de gains en vue de leur
@@ -332,10 +336,38 @@ Attribute triPourDefinitionRang.VB_ProcData.VB_Invoke_Func = " \n14"
         .Apply
     End With
 End Sub
-Private Sub saveAsTabDelimTxtFile(fileName As String)
-    ActiveWorkbook.SaveAs fileName:= _
-        "D:\Users\Jean-Pierre\OneDrive\Documents\Excel\" & fileName _
-        , FileFormat:=xlText, CreateBackup:=False
+
+'Sauve une feuille spécifique dans un fichier txt tab delimited
+Private Sub saveSheetAsTabDelimTxtFile(sheetName As String, fileName As String)
+    Dim ans As Long
+    Dim sSaveAsFilePath As String
+
+    On Error GoTo ErrHandler:
+    
+    sSaveAsFilePath = "D:\Users\Jean-Pierre\OneDrive\Documents\Excel\" & fileName
+
+    If Dir(sSaveAsFilePath) <> "" Then
+        ans = MsgBox("Le fichier " & sSaveAsFilePath & " existe déjà. Remplacer ?", vbYesNo + vbExclamation)
+        If ans <> vbYes Then
+            Exit Sub
+        Else
+            Kill sSaveAsFilePath
+        End If
+    End If
+    
+    Sheets(sheetName).Copy '//Copy sheet Packs to new workbook
+    ActiveWorkbook.SaveAs sSaveAsFilePath, xlTextWindows '//Save as text (tab delimited) file
+    
+    If ActiveWorkbook.Name <> ThisWorkbook.Name Then '//Double sure we don't close this workbook
+        ActiveWorkbook.Close False
+    End If
+
+My_Exit:
+    Exit Sub
+
+ErrHandler:
+    MsgBox Err.Description
+    Resume My_Exit
 End Sub
 
 'Supprime la ligne contenant les en-têtes de colonnes afin qu'elles ne soient pas exportées.
