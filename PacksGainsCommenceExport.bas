@@ -43,7 +43,9 @@ Sub handleRevenues()
     Dim packId As String
     Dim gainPackMonth As String
     Dim pseudoFilleul As String
+    Dim matriceLevel As String
     Dim idGainCol As Long
+    Dim matriceLevelCol As Long
     Dim curRow As Long
     Dim packIdCol As Long
     Dim typeGainCol As Long
@@ -60,6 +62,7 @@ Sub handleRevenues()
     packIdCol = Range("PACK_ID").Column
     typeGainCol = Range("TYPE_GAIN").Column
     idGainCol = Range("ID_GAIN").Column
+    matriceLevelCol = Range("MATRICE_LEVEL").Column
     pseudoFilleulCol = Range("PSEUDO_FILLEUL").Column
     dateGainCol = Range("DATE_GAIN_COL").Column
     
@@ -101,6 +104,8 @@ Sub handleRevenues()
                     Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
                     Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_MATRICE_PREMIUM
                     Cells(curRow, idGainCol).Value = pseudoFilleul & "-BMP-" & Cells(curRow, dateGainCol).Value
+                    matriceLevel = extractMatriceLevelMatrixPrem(cell)
+                    Cells(curRow, matriceLevelCol).Value = matriceLevel
                 Else
                     pseudoFilleul = extractFilleulUpgr(cell)
                     If (pseudoFilleul <> "") Then
@@ -168,6 +173,13 @@ End Function
 'Exemle de libellé: Niveau réseau Premium#1 bonus (tamcerise)
 Private Function extractPseudoFilleulMatrixPrem(cell As Range) As String
     extractPseudoFilleulMatrixPrem = extractItem(cell, "^Niveau réseau Premium#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+End Function
+
+'Extrait du libellé d'annonce de bonus matrice premium le niveau matriciel du gain.
+'
+'Exemle de libellé: Niveau réseau Premium#1 bonus (tamcerise)
+Private Function extractMatriceLevelMatrixPrem(cell As Range) As String
+    extractMatriceLevelMatrixPrem = extractItem(cell, "^Niveau réseau Premium#(\d*) bonus")
 End Function
 
 'Extrait le pseudo du filleul du libellé d'annonce de bonus en cas d'upgrade de celui-ci.
