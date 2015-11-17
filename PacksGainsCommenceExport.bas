@@ -22,15 +22,26 @@ Sub packsFormatAndSortData()
     Sheets("Packs").Select
     Application.CutCopyMode = False
     ActiveSheet.Range("A1").Select
+    ActiveWorkbook.Save
     Application.ScreenUpdating = True
 End Sub
 
-'Exporte les données dans un fichier texte tab separated pouvant être importé dans Commence
+'Exporte les données de la feuille Packs dans un fichier texte tab separated pouvant être importé dans Commence
 Sub packsExportDataForCommence()
     Application.ScreenUpdating = False
     deleteNomComptes
     deleteTopRow
-    saveAsTabDelimTxtFile
+    saveAsTabDelimTxtFile "Packs JPS et filleuls Commence export.txt"
+    Application.ScreenUpdating = True
+    MsgBox "La version .txt de la spreadsheet va être fermée. Veuillez rouvrir la version .xlsm !", vbInformation
+    ActiveWorkbook.Close savechanges:=False
+End Sub
+
+'Exporte les données de la feuille Gains dans un fichier texte tab separated pouvant être importé dans Commence
+Sub gainsExportDataForCommence()
+    Application.ScreenUpdating = False
+    deleteTopRow
+    saveAsTabDelimTxtFile "Gains JPS et filleuls Commence export.txt"
     ActiveSheet.Range("A1").Select
     Application.ScreenUpdating = True
 End Sub
@@ -202,19 +213,6 @@ Private Function extractItem(cell As Range, regexp As String) As String
     End If
 End Function
 
-Sub gainsFormatAndSortData()
-    formatDateAchat "DATE_GAIN"
-    transformMontantGain "MONTANT_GAIN"
-    writeNomComptes
-    ActiveSheet.Range("A1").Select
-End Sub
-Sub gainsExportDataForCommence()
-    deleteNomComptes
-    deleteTopRow
-    saveAsTabDelimTxtFile
-    ActiveSheet.Range("A1").Select
-End Sub
-
 Private Sub formatDateAchat(colName As String)
 Attribute formatDateAchat.VB_ProcData.VB_Invoke_Func = " \n14"
 '
@@ -334,56 +332,23 @@ Attribute triPourDefinitionRang.VB_ProcData.VB_Invoke_Func = " \n14"
         .Apply
     End With
 End Sub
-Private Sub saveAsTabDelimTxtFile()
-'
-' saveAsTabDelimTxtFile Macro
-'
-
-'
-    ActiveWorkbook.SaveAs Filename:= _
-        "D:\Users\Jean-Pierre\OneDrive\Documents\Excel\Packs JPS et filleuls Commence export.txt" _
+Private Sub saveAsTabDelimTxtFile(fileName As String)
+    ActiveWorkbook.SaveAs fileName:= _
+        "D:\Users\Jean-Pierre\OneDrive\Documents\Excel\" & fileName _
         , FileFormat:=xlText, CreateBackup:=False
 End Sub
-Private Sub deleteTopRow()
-'
-' deleteTopRow Macro
-'
 
+'Supprime la ligne contenant les en-têtes de colonnes afin qu'elles ne soient pas exportées.
 '
+'Cette suppression n'affecte que la version txt de la speadsheet et non la version xlsm !
+Private Sub deleteTopRow()
     Rows("1:1").Select
     Selection.Delete Shift:=xlUp
 End Sub
-Private Sub restoreTopRow()
-'
-' restoreTopRow Macro
-'
 
-'
-    Rows("1:1").Select
-    Selection.Insert Shift:=xlDown
-    ActiveSheet.Range("COMPTE").Select
-    ActiveCell.FormulaR1C1 = "COMPTE"
-    ActiveSheet.Range("RANG").Select
-    ActiveCell.FormulaR1C1 = "RANG"
-    ActiveSheet.Range("DATE_ACHAT").Select
-    ActiveCell.FormulaR1C1 = "DATE_ACHAT"
-    ActiveSheet.Range("NOM").Select
-    ActiveCell.FormulaR1C1 = "NOM"
-    ActiveSheet.Range("TYPE").Select
-    ActiveCell.FormulaR1C1 = "TYPE"
-    ActiveSheet.Range("MONTANT").Select
-    ActiveCell.FormulaR1C1 = "MONTANT"
-    ActiveSheet.Range("RANG_GAIN").Select
-    ActiveCell.FormulaR1C1 = "RANG_GAIN"
-    ActiveSheet.Range("GAIN_TOTAL").Select
-    ActiveCell.FormulaR1C1 = "GAIN_TOTAL"
-    ActiveSheet.Range("ECHU").Select
-    ActiveCell.FormulaR1C1 = "ECHU"
-    ActiveSheet.Range("DATE_UPDATE").Select
-    ActiveCell.FormulaR1C1 = "DATE_UPDATE"
-    ActiveSheet.Range("NOM_COMPTES").Select
-    ActiveCell.FormulaR1C1 = "NOM_COMPTES"
-End Sub
+'Recrée la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
+'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
+'la feuille Packs
 Private Sub writeNomComptes()
     ActiveSheet.Range("NOM_COMPTES").Select
     ActiveCell.FormulaR1C1 = "Compte TBS Antoine"
@@ -398,6 +363,12 @@ Private Sub writeNomComptes()
     ActiveCell.Offset(1, 0).Select
     ActiveCell.FormulaR1C1 = "Compte TBS Tamara"
 End Sub
+
+'Delete la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
+'En effet, ces données ne doivent pas être exportées !
+'
+'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
+'la feuille Packs
 Private Sub deleteNomComptes()
     ActiveSheet.Range("NOM_COMPTES").Select
     ActiveCell.FormulaR1C1 = ""
