@@ -22,13 +22,13 @@ Sub packsFormatAndSortData()
     Sheets("Packs").Select
     Application.CutCopyMode = False
     ActiveSheet.Range("A1").Select
-    ActiveWorkbook.Save
     Application.ScreenUpdating = True
 End Sub
 
 'Exporte les données de la feuille Packs dans un fichier texte tab separated pouvant être importé dans Commence
 Sub packsExportDataForCommence()
     Application.ScreenUpdating = False
+    ActiveWorkbook.Save
     deleteNomComptes
     deleteTopRow
     saveSheetAsTabDelimTxtFile "Packs", "Packs JPS et filleuls Commence export.txt"
@@ -44,6 +44,7 @@ End Sub
 'Exporte les données de la feuille Gains dans un fichier texte tab separated pouvant être importé dans Commence
 Sub gainsExportDataForCommence()
     Application.ScreenUpdating = False
+    ActiveWorkbook.Save
     deleteTopRow
     saveSheetAsTabDelimTxtFile "Gains", "Gains JPS et filleuls Commence export.txt"
     Application.ScreenUpdating = True
@@ -101,7 +102,7 @@ Sub handleRevenues()
         If (packId <> "") Then
             'gain de type 8 % sur achat de pack par un filleul du détenteur du compte
             Cells(curRow, packIdCol).Value = packId
-            Cells(curRow, idGainCol).Value = packId
+            Cells(curRow, idGainCol).Value = packId & "-b"
             Cells(curRow, typeGainCol).Value = BONUS_ACHAT_PACK_PAR_FILLEUL
             formatPseudoFilleulForPackId packId, curRow, pseudoFilleulCol, lookupRangePackContrat, lookupRangeContratPseudo
         Else
