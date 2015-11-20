@@ -10,9 +10,9 @@ Private Const BONUS_FILLEUL_UPGRADE = "Bonus filleul ugrade"
 'dans Commence
 Sub packsFormatAndSortData()
     Application.ScreenUpdating = False
-    formatDateAchat "DATE_ACHAT"
+    formatDate "DATE_ACHAT"
     transformType
-    transformMontantPack
+    transformMontant "MONTANT_PACK"
     transformMontantGain "GAIN_TOTAL"
     replaceEnCoursByZeroEchuByOne
     setDateUpdateToToday
@@ -20,8 +20,7 @@ Sub packsFormatAndSortData()
     writeNomComptes
     buildLookupTables
     Sheets("Packs").Select
-    Application.CutCopyMode = False
-    ActiveSheet.Range("A1").Select
+    clearAnySelection
     Application.ScreenUpdating = True
 End Sub
 
@@ -37,7 +36,7 @@ Sub packsExportDataForCommence()
 End Sub
 
 Private Sub closeWithoutSave()
-    MsgBox "La version modifiée (sans ligne de titres) de la spreadsheet va être fermée sans être sauvée. Veuillez rouvrir la version .xlsm !", vbInformation
+    MsgBox "La version modifiée (sans ligne de titres) de la spreadsheet va être fermée sans être sauvée. Veuillez rouvrir la version .xlsm (sauvée avant l'exportation) !", vbInformation
     ActiveWorkbook.Close savechanges:=False
 End Sub
 
@@ -71,8 +70,12 @@ Sub handleRevenues()
     Dim lookupTablesSheet As Worksheet
     Dim lookupRangePackContrat As Range
     Dim lookupRangeContratPseudo As Range
+    Dim gainSheetCalculatedCellsRange As Range
     
     Application.ScreenUpdating = False
+    
+    formatDate "DATE_GAIN_COL"
+    transformMontant "MONTANT_GAIN_COL"
     
     Set rng = Range("LIBELLE")
     packIdCol = Range("PACK_ID").Column
@@ -88,8 +91,13 @@ Sub handleRevenues()
     Set lookupRangePackContrat = lookupTablesSheet.Range(lookupTablesSheet.Cells(2, 1), lookupTablesSheet.Cells(lastCellRow, 2))
     
     lastCellRow = getLastDataRow(lookupTablesSheet.Range("D:D"))
-    Set lookupRangeContratPseudo = lookupTablesSheet.Range(lookupTablesSheet.Cells(2, 4), lookupTablesSheet.Cells(lastCellRow, 5))
+    Set lookupRangeContratPseudo = lookupTablesSheet.Range(lookupTablesSheet.Cells(2, 5), lookupTablesSheet.Cells(lastCellRow, 6))
 
+    'clear col 6 à 10 qui contiennent les valeurs extraites par la suite de la macro
+    lastCellRow = getLastDataRow(ActiveSheet.Range("A:A"))
+    Set gainSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, 6), ActiveSheet.Cells(lastCellRow, 10))
+    gainSheetCalculatedCellsRange.Clear
+    
     For Each cell In rng
         If (cell.Value = "") Then
             Exit For
@@ -139,9 +147,15 @@ Sub handleRevenues()
         End If
     Next cell
     
+    clearAnySelection
+    
     Application.ScreenUpdating = True
 End Sub
 
+Private Sub clearAnySelection()
+    Application.CutCopyMode = False
+    ActiveSheet.Range("A1").Select
+End Sub
 Private Sub formatPseudoFilleulForPackId(packId As String, curRow As Long, pseudoFilleulCol As Long, lookupRangePackContrat As Range, lookupRangeContratPseudo As Range)
     Dim nomContratCommence As Variant
     Dim pseudoTBS As Variant
@@ -218,10 +232,10 @@ Private Function extractItem(cell As Range, regexp As String) As String
     End If
 End Function
 
-Private Sub formatDateAchat(colName As String)
-Attribute formatDateAchat.VB_ProcData.VB_Invoke_Func = " \n14"
+Private Sub formatDate(colName As String)
+Attribute formatDate.VB_ProcData.VB_Invoke_Func = " \n14"
 '
-' formatDateAchat Macro
+' formatDate Macro
 '
 
 '
@@ -253,13 +267,13 @@ Attribute transformType.VB_ProcData.VB_Invoke_Func = " \n14"
         ReplaceFormat:=False
     Selection.NumberFormat = "@"
 End Sub
-Private Sub transformMontantPack()
+Private Sub transformMontant(colName As String)
 '
 ' transformMontant Macro
 '
 
 '
-    ActiveSheet.Range("MONTANT_PACK").Select
+    ActiveSheet.Range(colName).Select
     Selection.Replace What:=",", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
@@ -421,36 +435,53 @@ Private Sub buildLookupTables()
     Dim lookupTablesSheet As Worksheet
     Dim packsSheet As Worksheet
     Dim lookupRangePackContrat As Range
-    Dim lastCellRow As Long
+    Dim lookupTableLastCellRowPlusOne As Long
+    Dim packsSheetLastCellRow As Long
     
     Set lookupTablesSheet = Sheets("Lookup tables")
     Set packsSheet = Sheets("Packs")
     
-    'vide la table
-    lastCellRow = getLastDataRow(lookupTablesSheet.Range("A:A"))
-    Set lookupRangePackContrat = lookupTablesSheet.Range(lookupTablesSheet.Cells(2, 1), lookupTablesSheet.Cells(lastCellRow, 2))
-    lookupRangePackContrat.Cells.ClearContents
+    lookupTableLastCellRowPlusOne = getLastDataRow(lookupTablesSheet.Range("A:A")) + 1
+    
+    If (lookupTableLastCellRowPlusOne > 1000000) Then
+        'le cas si la lookup table ne contient aucune entrée pack/compte/date pack !
+        lookupTableLastCellRowPlusOne = 2
+    End If
+    
+    packsSheetLastCellRow = getLastDataRow(packsSheet.Range("A:A"))
     
     'copie la colonne no de packs
     packsSheet.Select
-    packsSheet.Columns("D:D").Select
+    packsSheet.Range(packsSheet.Cells(2, 4), packsSheet.Cells(packsSheetLastCellRow, 4)).Select
     Selection.Copy
     lookupTablesSheet.Select
-    lookupTablesSheet.Columns("A:A").Select
+    lookupTablesSheet.Cells(lookupTableLastCellRowPlusOne, 1).Select
     ActiveSheet.Paste
     
     'copie la colonne nom de contrat
     packsSheet.Select
-    packsSheet.Columns("A:A").Select
+    packsSheet.Range(packsSheet.Cells(2, 1), packsSheet.Cells(packsSheetLastCellRow, 1)).Select
     Application.CutCopyMode = False
     Selection.Copy
     
     lookupTablesSheet.Select
-    lookupTablesSheet.Columns("B:B").Select
+    lookupTablesSheet.Cells(lookupTableLastCellRowPlusOne, 2).Select
+    ActiveSheet.Paste
+    
+    'copie la colonne date achat (utile pour purger les packs plus vieux d'une année de la lookup table !)
+    packsSheet.Select
+    packsSheet.Range(packsSheet.Cells(2, 3), packsSheet.Cells(packsSheetLastCellRow, 3)).Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    
+    lookupTablesSheet.Select
+    lookupTablesSheet.Cells(lookupTableLastCellRowPlusOne, 3).Select
     ActiveSheet.Paste
     
     'adapte col width
-    Columns("B:B").EntireColumn.AutoFit
     Columns("A:A").EntireColumn.AutoFit
+    Columns("B:B").EntireColumn.AutoFit
+    Columns("C:C").EntireColumn.AutoFit
+    
     ActiveSheet.Range("A1").Select
 End Sub
