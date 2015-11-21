@@ -2,9 +2,10 @@ Attribute VB_Name = "PacksGainsCommenceExport"
 Option Explicit
 Private Const BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pack par filleul"
 Private Const GAIN_PACK_25_PCT As String = "Gain pack 25 %"
-Private Const BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice premium"
-Private Const BONUS_FILLEUL_MATRICE_ELITE = "Bonus matrice premium"
-Private Const BONUS_FILLEUL_UPGRADE = "Bonus filleul ugrade"
+Private Const BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
+Private Const BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
+Private Const BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
+Private Const BONUS_FILLEUL_UPGR_SE = "Bonus filleul ugr SE"
 
 'Formate les données issues des copy/paste des listes de packs en vue de leur importation
 'dans Commence
@@ -53,12 +54,13 @@ End Sub
 'Formate et traite les données issues des copy/paste des listes de gains en vue de leur
 'importation dans Commence
 Sub handleRevenues()
-    Dim rng As Range
+    Dim rngLibelle As Range
     Dim cell As Range
     Dim packId As String
     Dim gainPackMonth As String
     Dim pseudoFilleul As String
     Dim matriceLevel As String
+    Dim compteReceivingGainCol As Long
     Dim idGainCol As Long
     Dim matriceLevelCol As Long
     Dim curRow As Long
@@ -77,7 +79,9 @@ Sub handleRevenues()
     formatDate "DATE_GAIN_COL"
     transformMontant "MONTANT_GAIN_COL"
     
-    Set rng = Range("LIBELLE")
+    Set rngLibelle = Range("LIBELLE")
+    
+    compteReceivingGainCol = Range("COMPTE_RECEIVING_GAIN").Column
     packIdCol = Range("PACK_ID").Column
     typeGainCol = Range("TYPE_GAIN").Column
     idGainCol = Range("ID_GAIN").Column
@@ -98,7 +102,7 @@ Sub handleRevenues()
     Set gainSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, 6), ActiveSheet.Cells(lastCellRow, 10))
     gainSheetCalculatedCellsRange.Clear
     
-    For Each cell In rng
+    For Each cell In rngLibelle
         If (cell.Value = "") Then
             Exit For
         End If
@@ -127,20 +131,38 @@ Sub handleRevenues()
                     'bonus mensuel comptabilisé dans la matrice Premium
                     Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
                     Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_MATRICE_PREMIUM
-                    Cells(curRow, idGainCol).Value = pseudoFilleul & "-BMP-" & Cells(curRow, dateGainCol).Value
+                    Cells(curRow, idGainCol).Value = pseudoFilleul & "-BMP-to-" & Cells(curRow, compteReceivingGainCol).Value & "-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
                     matriceLevel = extractMatriceLevelMatrixPrem(cell)
                     Cells(curRow, matriceLevelCol).Value = matriceLevel
                 Else
-                    pseudoFilleul = extractFilleulUpgr(cell)
+                    pseudoFilleul = extractPseudoFilleulMatrixSE(cell)
                     If (pseudoFilleul <> "") Then
-                        'bonus provenant de l'activation ou de l'upgrade d'un filleul du détenteur du compte
+                        'bonus mensuel comptabilisé dans la matrice Super Elite
                         Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
-                        Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_UPGRADE
-                        Cells(curRow, idGainCol).Value = pseudoFilleul & "-UPGR-" & Cells(curRow, dateGainCol).Value
+                        Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_MATRICE_SE
+                        Cells(curRow, idGainCol).Value = pseudoFilleul & "-BSE-to-" & Cells(curRow, compteReceivingGainCol).Value & "-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
+                        matriceLevel = extractMatriceLevelMatrixSE(cell)
+                        Cells(curRow, matriceLevelCol).Value = matriceLevel
                     Else
-                        Cells(curRow, typeGainCol).Value = "### LIBELLE DE GAIN INCONNU ###"
-                        MsgBox "Libellé de gain inconnu dans cellule " & cell.Address
-                        Exit For
+                        pseudoFilleul = extractFilleulUpgrToPremium(cell)
+                        If (pseudoFilleul <> "") Then
+                            'bonus provenant de l'activation ou de l'upgrade en Premium d'un filleul du détenteur du compte
+                            Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
+                            Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_UPGR_PREMIUM
+                            Cells(curRow, idGainCol).Value = pseudoFilleul & "-UPGR_PREM-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
+                        Else
+                            pseudoFilleul = extractFilleulUpgrToSE(cell)
+                            If (pseudoFilleul <> "") Then
+                                'bonus provenant de l'upgrade en Super Elite d'un filleul du détenteur du compte
+                                Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
+                                Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_UPGR_SE
+                                Cells(curRow, idGainCol).Value = pseudoFilleul & "-UPGR_SE-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
+                            Else
+                                Cells(curRow, typeGainCol).Value = "### LIBELLE DE GAIN INCONNU ###"
+                                MsgBox "Libellé de gain inconnu dans cellule " & cell.Address
+                                Exit For
+                            End If
+                        End If
                     End If
                 End If
             End If
@@ -198,25 +220,86 @@ Private Function extractPackMonthFromGainPackLibelle(cell As Range) As String
     extractPackMonthFromGainPackLibelle = extractItem(cell, "([0-9]+)/12\]$")
 End Function
 
-'Extrait du libellé d'annonce de bonus matrice premium le pseudo du filleul.
+'Extrait du libellé d'annonce de bonus matrice Premium le pseudo du filleul.
 '
-'Exemle de libellé: Niveau réseau Premium#1 bonus (tamcerise)
+'Exemple de libellé: Niveau réseau Premium#1 bonus (tamcerise)  ou
+'                    VIP Network level#1 bonus (lucky70)
 Private Function extractPseudoFilleulMatrixPrem(cell As Range) As String
-    extractPseudoFilleulMatrixPrem = extractItem(cell, "^Niveau réseau Premium#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+    Dim strPseudo As String
+    
+    strPseudo = extractItem(cell, "^Niveau réseau Premium#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+    
+    If (strPseudo = "") Then
+        'essai avec la version anglaise du libellé
+        strPseudo = extractItem(cell, "^VIP Network level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+    End If
+    
+    extractPseudoFilleulMatrixPrem = strPseudo
+End Function
+
+'Extrait du libellé d'annonce de bonus matrice Super Elite le pseudo du filleul.
+'
+'Exemple de libellé: SVIP level#1 bonus (jpensuisse)
+Private Function extractPseudoFilleulMatrixSE(cell As Range) As String
+    Dim strPseudo As String
+    
+    strPseudo = extractItem(cell, "^SVIP level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+    
+'    If (strPseudo = "") Then
+'        'essai avec la version française du libellé
+'        strPseudo = extractItem(cell, "^VIP Network level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+'    End If
+
+    extractPseudoFilleulMatrixPrem = strPseudo
 End Function
 
 'Extrait du libellé d'annonce de bonus matrice premium le niveau matriciel du gain.
 '
-'Exemle de libellé: Niveau réseau Premium#1 bonus (tamcerise)
+'Exemple de libellé: Niveau réseau Premium#1 bonus (tamcerise)
+'                    VIP Network level#1 bonus (lucky70)
 Private Function extractMatriceLevelMatrixPrem(cell As Range) As String
-    extractMatriceLevelMatrixPrem = extractItem(cell, "^Niveau réseau Premium#(\d*) bonus")
+    Dim strLevel As String
+    
+    strLevel = extractItem(cell, "^Niveau réseau Premium#(\d*) bonus")
+    
+    If (strLevel = "") Then
+        'essai avec la version anglaise du libellé
+        strLevel = extractItem(cell, "^VIP Network level#(\d*) bonus")
+    End If
+    
+    extractMatriceLevelMatrixPrem = strLevel
 End Function
 
-'Extrait le pseudo du filleul du libellé d'annonce de bonus en cas d'upgrade de celui-ci.
+'Extrait du libellé d'annonce de bonus matrice premium le niveau matriciel du gain.
 '
-'Exemle de libellé: Bonus sponsor (rosemaman)
-Private Function extractFilleulUpgr(cell As Range) As String
-    extractFilleulUpgr = extractItem(cell, "^Bonus sponsor \(([a-zA-Z0-9-_]+)\)")
+'WARNING: TU NE CONNAIS PAS ENCORE AVEC CERTITUDE LES LIBELLES EXACTS !
+'Exemple de libellé: Niveau réseau Super Elite#1 bonus (tamcerise)
+'                    SVIP level#1 bonus (lucky70)
+Private Function extractMatriceLevelMatrixSE(cell As Range) As String
+    Dim strLevel As String
+    
+    strLevel = extractItem(cell, "^Niveau réseau Super Elite#(\d*) bonus")
+    
+    If (strLevel = "") Then
+        'essai avec la version anglaise du libellé
+        strLevel = extractItem(cell, "^SVIP level#(\d*) bonus")
+    End If
+    
+    extractMatriceLevelMatrixPrem = strLevel
+End Function
+
+'Extrait le pseudo du filleul du libellé d'annonce de bonus en cas d'upgrade de celui-ci à Premium.
+'
+'Exemple de libellé: Bonus sponsor (rosemaman)
+Private Function extractFilleulUpgrToPremium(cell As Range) As String
+    extractFilleulUpgrToPremium = extractItem(cell, "^Bonus sponsor \(([a-zA-Z0-9-_]+)\)")
+End Function
+
+'Extrait le pseudo du filleul du libellé d'annonce de bonus en cas d'upgrade de celui-ci à Super Elite.
+'
+'Exemple de libellé: SVIP Sponsor bonus (jpensuisse)
+Private Function extractFilleulUpgrToSE(cell As Range) As String
+    extractFilleulUpgrToSE = extractItem(cell, "^SVIP Sponsor bonus \(([a-zA-Z0-9-_]+)\)")
 End Function
 Private Function extractItem(cell As Range, regexp As String) As String
     Dim regEx As New VBScript_RegExp_55.regexp
