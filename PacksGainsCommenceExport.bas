@@ -250,7 +250,7 @@ Private Function extractPseudoFilleulMatrixSE(cell As Range) As String
 '        strPseudo = extractItem(cell, "^VIP Network level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
 '    End If
 
-    extractPseudoFilleulMatrixPrem = strPseudo
+    extractPseudoFilleulMatrixSE = strPseudo
 End Function
 
 'Extrait du libellé d'annonce de bonus matrice premium le niveau matriciel du gain.
