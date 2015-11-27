@@ -16,7 +16,6 @@ Sub packsFormatAndSortData()
     transformMontant "MONTANT_PACK"
     transformMontantGain "GAIN_TOTAL"
     replaceEnCoursByZeroEchuByOne
-    setDateUpdateToToday
     triPourDefinitionRang
     writeNomComptes
     buildLookupTables
@@ -383,25 +382,6 @@ Attribute replaceEnCoursByZeroEchuByOne.VB_ProcData.VB_Invoke_Func = " \n14"
     Selection.Replace What:="En cours", Replacement:="0", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-End Sub
-Private Sub setDateUpdateToToday()
-Attribute setDateUpdateToToday.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' setDateUpdateToToday Macro
-'
-
-'
-    Dim lastCellRow As Long
-    Dim firstColCell As Range
-    
-    lastCellRow = getLastDataRow(Range("RANG"))
-    ActiveSheet.Range("DATE_UPDATE").Select
-    Set firstColCell = ActiveCell.Offset(1, 0)
-    firstColCell.FormulaR1C1 = "=NOW()"
-    Selection.NumberFormat = "d/m/yyyy"
-    firstColCell.Copy
-    ActiveSheet.Range(Cells(firstColCell.Row, firstColCell.Column), Cells(lastCellRow, firstColCell.Column)).Select
-    ActiveSheet.Paste
 End Sub
 Function getLastDataRow(colCell As Range) As Long
     Dim lastCell As Range
