@@ -1,4 +1,4 @@
-Attribute VB_Name = "PacksCommenceExport"
+Attribute VB_Name = "TBSSimulationMacro"
 Option Explicit
 
 'Constantes utilisée pour le calcul du mix de pack
