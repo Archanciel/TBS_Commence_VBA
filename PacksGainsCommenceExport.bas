@@ -6,6 +6,24 @@ Private Const BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
 Private Const BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
 Private Const BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
 Private Const BONUS_FILLEUL_UPGR_SE = "Bonus filleul ugr SE"
+Sub clearSheet()
+    Dim delRange As Range
+    Dim topLeftDataCell As Range
+    Dim ans As Long
+    
+    Set topLeftDataCell = Range("A2")
+    Set delRange = Range(topLeftDataCell, topLeftDataCell.End(xlDown).End(xlToRight))
+    
+    delRange.Select
+    ans = MsgBox("Supprimer la sélection ?", vbYesNo + vbExclamation)
+    
+    If ans <> vbYes Then
+        clearAnySelection
+        Exit Sub
+    Else
+        delRange.Clear
+    End If
+End Sub
 
 'Formate les données issues des copy/paste des listes de packs en vue de leur importation
 'dans Commence
