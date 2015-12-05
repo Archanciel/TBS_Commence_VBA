@@ -8,11 +8,13 @@ Private Const BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
 Private Const BONUS_FILLEUL_UPGR_SE = "Bonus filleul ugr SE"
 Sub clearSheet()
     Dim delRange As Range
+    Dim topLeftTitleCell As Range
     Dim topLeftDataCell As Range
     Dim ans As Long
     
+    Set topLeftTitleCell = Range("A1")
     Set topLeftDataCell = Range("A2")
-    Set delRange = Range(topLeftDataCell, topLeftDataCell.End(xlDown).End(xlToRight))
+    Set delRange = Range(topLeftDataCell, Cells(topLeftDataCell.End(xlDown).Row, topLeftTitleCell.End(xlToRight).Column))
     
     delRange.Select
     ans = MsgBox("Supprimer la sélection ?", vbYesNo + vbExclamation)
