@@ -32,6 +32,8 @@ End Sub
 Sub packsFormatAndSortData()
     Application.ScreenUpdating = False
     formatDate "DATE_ACHAT"
+    'adapte col width for id pack
+    Columns("D:D").EntireColumn.AutoFit
     transformType
     transformMontant "MONTANT_PACK"
     transformMontantGain "GAIN_TOTAL"
@@ -514,12 +516,14 @@ Private Sub deleteNomComptes()
     ActiveCell.FormulaR1C1 = ""
 End Sub
 
+'Sub appelée par packsFormatAndSortData()
 Private Sub buildLookupTables()
     Dim lookupTablesSheet As Worksheet
     Dim packsSheet As Worksheet
     Dim lookupRangePackContrat As Range
     Dim lookupTableLastCellRowPlusOne As Long
     Dim packsSheetLastCellRow As Long
+    Dim lookupTableLastCellRow As Long
     
     Set lookupTablesSheet = Sheets("Lookup tables")
     Set packsSheet = Sheets("Packs")
@@ -560,6 +564,10 @@ Private Sub buildLookupTables()
     lookupTablesSheet.Select
     lookupTablesSheet.Cells(lookupTableLastCellRowPlusOne, 3).Select
     ActiveSheet.Paste
+    
+    'purge any duplicate pack id line
+    lookupTableLastCellRow = getLastDataRow(lookupTablesSheet.Range("A:A"))
+    Range("A1", Cells(lookupTableLastCellRow, 3)).RemoveDuplicates Columns:=Array(1), Header:=xlYes
     
     'adapte col width
     Columns("A:A").EntireColumn.AutoFit
