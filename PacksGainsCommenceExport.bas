@@ -207,13 +207,12 @@ Private Sub formatPseudoFilleulForPackId(packId As String, curRow As Long, pseud
     nomContratCommence = Application.VLookup(CDbl(packId), lookupRangePackContrat, 2, False)
     
     If (IsError(nomContratCommence)) Then
-        pseudoTBS = "### pack # not found ###"
-    End If
-    
-    pseudoTBS = Application.VLookup(nomContratCommence, lookupRangeContratPseudo, 2, False)
-    
-    If (IsError(pseudoTBS)) Then
-        pseudoTBS = "### contrat Commence not found ###"
+        pseudoTBS = "### pack id '" + packId + "' not found in lookup table ###"
+    Else
+        pseudoTBS = Application.VLookup(nomContratCommence, lookupRangeContratPseudo, 2, False)
+        If (IsError(pseudoTBS)) Then
+            pseudoTBS = "### contrat Commence '" + nomContratCommence + "' not found in lookup table ###"
+        End If
     End If
     
     Cells(curRow, pseudoFilleulCol).Value = pseudoTBS
