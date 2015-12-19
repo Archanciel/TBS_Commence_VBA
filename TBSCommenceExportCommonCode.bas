@@ -4,7 +4,7 @@ Option Explicit
 'modules spécifiques aux feuilles du workbook
 
 Sub MacroCopySelectedAccountNameInEmptyCells()
-Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = "M\n14"
+Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = "N\n14"
 '
 ' Copie le nom de compte actif dans les cellules vides de la colonne COMPTE
 '
@@ -16,6 +16,12 @@ Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = 
     
     Selection.Copy
     firstEmptyCellRow = getLastDataRow(Range("A:A")) + 1
+    
+    If (firstEmptyCellRow > 1000000) Then
+        'le cas si la colonne contenant les noms de compte est vide !
+        firstEmptyCellRow = 2
+    End If
+    
     lastEmptyCellRow = getLastDataRow(Range("B:B"))
     
     If (firstEmptyCellRow > lastEmptyCellRow) Then
