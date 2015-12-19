@@ -88,6 +88,12 @@ Sub splitDateTime(rowNum As Long, initialDateColNum As Long, timeColNum As Long)
     '
     datePart = Left(dateTimeString, n)
     timePartWithSec = Right(dateTimeString, l - n)
+    
+    If (timePartWithSec = vbNullString) Then
+        'the case if the date / time was already split !
+        Exit Sub
+    End If
+    
     m = Len(timePartWithSec)
     timePartNoSec = Left(timePartWithSec, m - 3) 'strip out seconds
 
@@ -101,4 +107,15 @@ Sub splitDateTime(rowNum As Long, initialDateColNum As Long, timeColNum As Long)
     Cells(rowNum, timeColNum).Value = timePartNoSec
     Cells(rowNum, initialDateColNum).Value = datePart
 End Sub
-
+'make amount values nicely right aligned like real numbers
+Sub transformMontant(colName As String)
+    ActiveSheet.Range(colName).Select
+    Selection.Replace What:=",", Replacement:="", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+End Sub
+'so that the UID's are displayed correctly, and not in scientific notation
+Sub formatIdCol(colName As String)
+    ActiveSheet.Range(colName).Select
+    Selection.NumberFormat = "0"
+End Sub
