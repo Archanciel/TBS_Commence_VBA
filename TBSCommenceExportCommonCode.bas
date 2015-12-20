@@ -119,3 +119,17 @@ Sub formatIdCol(colName As String)
     ActiveSheet.Range(colName).Select
     Selection.NumberFormat = "0"
 End Sub
+Function extractItem(cell As Range, regexp As String) As String
+    Dim regEx As New VBScript_RegExp_55.regexp
+    Dim matches
+    regEx.Pattern = regexp
+    regEx.IgnoreCase = True 'True to ignore case
+    regEx.Global = False 'True matches all occurances, False matches the first occurance
+    If regEx.Test(cell.Value) Then
+        Set matches = regEx.Execute(cell.Value)
+        extractItem = matches(0).SubMatches(0) 'extraction du 1er groupe
+    Else
+        extractItem = ""
+    End If
+End Function
+
