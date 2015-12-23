@@ -1,11 +1,11 @@
 Attribute VB_Name = "PacksGainsCommenceExport"
 Option Explicit
-Private Const BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pack par filleul"
-Private Const GAIN_PACK_25_PCT As String = "Gain pack 25 %"
-Private Const BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
-Private Const BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
-Private Const BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
-Private Const BONUS_FILLEUL_UPGR_SE = "Bonus filleul ugr SE"
+Private Const GAIN_TYPE_BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pack par filleul"
+Private Const GAIN_TYPE_GAIN_PACK_25_PCT As String = "Gain pack 25 %"
+Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
+Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
+Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
+Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_SE = "Bonus filleul ugr SE"
 Sub clearSheet()
     Dim delRange As Range
     Dim topLeftTitleCell As Range
@@ -136,7 +136,7 @@ Sub handleRevenues()
             'gain de type 8 % sur achat de pack par un filleul du détenteur du compte
             Cells(curRow, packIdCol).Value = packId
             Cells(curRow, idGainCol).Value = packId & "-b"
-            Cells(curRow, typeGainCol).Value = BONUS_ACHAT_PACK_PAR_FILLEUL
+            Cells(curRow, typeGainCol).Value = GAIN_TYPE_BONUS_ACHAT_PACK_PAR_FILLEUL
             formatPseudoFilleulForPackId packId, curRow, pseudoFilleulCol, lookupRangePackContrat, lookupRangeContratPseudo
         Else
             packId = extractPackIdFromGainPackLibelle(cell)
@@ -145,13 +145,13 @@ Sub handleRevenues()
                 gainPackMonth = extractPackMonthFromGainPackLibelle(cell)
                 Cells(curRow, packIdCol).Value = packId
                 Cells(curRow, idGainCol).Value = packId & "-" & gainPackMonth
-                Cells(curRow, typeGainCol).Value = GAIN_PACK_25_PCT
+                Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_25_PCT
             Else
                 pseudoFilleul = extractPseudoFilleulMatrixPrem(cell)
                 If (pseudoFilleul <> "") Then
                     'bonus mensuel comptabilisé dans la matrice Premium
                     Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
-                    Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_MATRICE_PREMIUM
+                    Cells(curRow, typeGainCol).Value = GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM
                     Cells(curRow, idGainCol).Value = pseudoFilleul & "-BMP-to-" & Cells(curRow, compteReceivingGainCol).Value & "-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
                     matriceLevel = extractMatriceLevelMatrixPrem(cell)
                     Cells(curRow, matriceLevelCol).Value = matriceLevel
@@ -160,7 +160,7 @@ Sub handleRevenues()
                     If (pseudoFilleul <> "") Then
                         'bonus mensuel comptabilisé dans la matrice Super Elite
                         Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
-                        Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_MATRICE_SE
+                        Cells(curRow, typeGainCol).Value = GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE
                         Cells(curRow, idGainCol).Value = pseudoFilleul & "-BSE-to-" & Cells(curRow, compteReceivingGainCol).Value & "-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
                         matriceLevel = extractMatriceLevelMatrixSE(cell)
                         Cells(curRow, matriceLevelCol).Value = matriceLevel
@@ -169,14 +169,14 @@ Sub handleRevenues()
                         If (pseudoFilleul <> "") Then
                             'bonus provenant de l'activation ou de l'upgrade en Premium d'un filleul du détenteur du compte
                             Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
-                            Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_UPGR_PREMIUM
+                            Cells(curRow, typeGainCol).Value = GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM
                             Cells(curRow, idGainCol).Value = pseudoFilleul & "-UPGR_PREM-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
                         Else
                             pseudoFilleul = extractFilleulUpgrToSE(cell)
                             If (pseudoFilleul <> "") Then
                                 'bonus provenant de l'upgrade en Super Elite d'un filleul du détenteur du compte
                                 Cells(curRow, pseudoFilleulCol).Value = pseudoFilleul
-                                Cells(curRow, typeGainCol).Value = BONUS_FILLEUL_UPGR_SE
+                                Cells(curRow, typeGainCol).Value = GAIN_TYPE_BONUS_FILLEUL_UPGR_SE
                                 Cells(curRow, idGainCol).Value = pseudoFilleul & "-UPGR_SE-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
                             Else
                                 Cells(curRow, typeGainCol).Value = "### LIBELLE DE GAIN INCONNU ###"
@@ -195,10 +195,6 @@ Sub handleRevenues()
     Application.ScreenUpdating = True
 End Sub
 
-Private Sub clearAnySelection()
-    Application.CutCopyMode = False
-    ActiveSheet.Range("A1").Select
-End Sub
 Private Sub formatPseudoFilleulForPackId(packId As String, curRow As Long, pseudoFilleulCol As Long, lookupRangePackContrat As Range, lookupRangeContratPseudo As Range)
     Dim nomContratCommence As Variant
     Dim pseudoTBS As Variant
@@ -217,8 +213,7 @@ Private Sub formatPseudoFilleulForPackId(packId As String, curRow As Long, pseud
     
     Cells(curRow, pseudoFilleulCol).Value = pseudoTBS
 End Sub
-
-'Extrait du libellé d'annonce de bonus le numéro de pack dont l'achat par un filleul
+'Extrait du libellé d'annonce de gain le numéro de pack dont l'achat par un filleul
 'a généré le bonus.
 '
 'Exemple de libellé: Bonus sponsor pour dépot(#13441058360)
@@ -321,19 +316,6 @@ End Function
 Private Function extractFilleulUpgrToSE(cell As Range) As String
     extractFilleulUpgrToSE = extractItem(cell, "^SVIP Sponsor bonus \(([a-zA-Z0-9-_]+)\)")
 End Function
-Private Function extractItem(cell As Range, regexp As String) As String
-    Dim regEx As New VBScript_RegExp_55.regexp
-    Dim matches
-    regEx.Pattern = regexp
-    regEx.IgnoreCase = True 'True to ignore case
-    regEx.Global = False 'True matches all occurances, False matches the first occurance
-    If regEx.Test(cell.Value) Then
-        Set matches = regEx.Execute(cell.Value)
-        extractItem = matches(0).SubMatches(0) 'extraction du 1er groupe
-    Else
-        extractItem = ""
-    End If
-End Function
 
 Private Sub formatDate(colName As String)
 Attribute formatDate.VB_ProcData.VB_Invoke_Func = " \n14"
@@ -369,17 +351,6 @@ Attribute transformType.VB_ProcData.VB_Invoke_Func = " \n14"
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
     Selection.NumberFormat = "@"
-End Sub
-Private Sub transformMontant(colName As String)
-'
-' transformMontant Macro
-'
-
-'
-    ActiveSheet.Range(colName).Select
-    Selection.Replace What:=",", Replacement:="", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
 End Sub
 Private Sub transformMontantGain(colName As String)
 '
