@@ -12,7 +12,6 @@ Sub handleVirements()
     Dim cell As Range
     Dim paiemenrPackId As String
     Dim curRow As Long
-    Dim virementLibelleCol As Long
     Dim uidVirementCol As Long
     Dim typeVirementCol As Long
     Dim timePaiementCol As Long
@@ -25,8 +24,7 @@ Sub handleVirements()
     transformMontant "MONTANT_VIREMENT"
     
     lastCellRow = getLastDataRow(ActiveSheet.Range("A:A"))
-    virementLibelleCol = Range("LIBELLE_VIREMENT").Column
-    Set rngLibelle = ActiveSheet.Range(Cells(2, virementLibelleCol), Cells(lastCellRow, virementLibelleCol))
+    Set rngLibelle = getDataRangeFromColRange(ActiveSheet.Range("LIBELLE_VIREMENT"))
     
     uidVirementCol = Range("UID_VIREMENT").Column
     typeVirementCol = Range("TYPE_VIREMENT").Column
