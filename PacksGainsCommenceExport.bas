@@ -1,5 +1,8 @@
 Attribute VB_Name = "PacksGainsCommenceExport"
 Option Explicit
+Private Const RENDEMENT_REGULAR_PACK As String = "25"
+Private Const RENDEMENT_XMAS_PACK As String = "28"
+
 Private Const GAIN_TYPE_BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pack par filleul"
 Private Const GAIN_TYPE_GAIN_PACK_25_PCT As String = "Gain pack 25 %"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
@@ -35,6 +38,7 @@ Sub packsFormatAndSortData()
     'adapte col width for id pack
     Columns("D:D").EntireColumn.AutoFit
     transformType
+    formatRendement
     transformMontant "MONTANT_PACK"
     transformMontantGain "GAIN_TOTAL"
     replaceEnCoursByZeroEchuByOne
@@ -45,7 +49,34 @@ Sub packsFormatAndSortData()
     clearAnySelection
     Application.ScreenUpdating = True
 End Sub
-
+Private Sub formatRendement()
+    Dim packTypeRange As Range
+    Dim cell As Range
+    Dim packTypeStr As String
+    Dim rendementCol As Long
+    Dim curRow As Long
+    
+    Set packTypeRange = getDataRangeFromColRange(ActiveSheet.Range("TYPE"))
+    
+    rendementCol = ActiveSheet.Range("RENDEMENT_PACK").Column
+    
+    For Each cell In packTypeRange
+        If (cell.Value = "") Then
+            Exit For
+        End If
+        
+        curRow = cell.Row
+        
+        packTypeStr = cell.Value
+        
+        If (InStr(1, packTypeStr, "xmas", vbTextCompare) > 0) Then
+            'XMAS pack avec rendement de 28 %
+            Cells(curRow, rendementCol).Value = RENDEMENT_XMAS_PACK
+        Else
+            Cells(curRow, rendementCol).Value = RENDEMENT_REGULAR_PACK
+        End If
+    Next cell
+End Sub
 'Exporte les données de la feuille Packs dans un fichier texte tab separated pouvant être importé dans Commence
 Sub packsExportDataForCommence()
     Application.ScreenUpdating = False
