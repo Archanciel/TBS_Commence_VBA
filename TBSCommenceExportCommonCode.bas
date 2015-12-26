@@ -133,3 +133,14 @@ Function extractItem(cell As Range, regexp As String) As String
     End If
 End Function
 
+'reçois un whole column range en parm et renvoie le même range, mais
+'amputé de la première cellule qui contient le titre de la colonne.
+
+'Ex d'utilisation:
+'    Set packTypeRange = getDataRangeFromColRange(ActiveSheet.Range("TYPE"))
+Function getDataRangeFromColRange(colRange As Range) As Range
+    Dim lastColRangeRow As Long
+    lastColRangeRow = getLastDataRow(colRange)
+    Set getDataRangeFromColRange = ActiveSheet.Range(colRange.Cells(2, 1), colRange.Cells(lastColRangeRow, 1))
+End Function
+
