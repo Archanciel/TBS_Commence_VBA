@@ -12,10 +12,8 @@ Sub handlePaiements()
     Dim cell As Range
     Dim paiemenrPackId As String
     Dim curRow As Long
-    Dim paiementLibelleCol As Long
     Dim paiementPackIdCol As Long
     Dim typePaiementCol As Long
-    Dim datePaiementCol As Long
     Dim timePaiementCol As Long
     Dim lastCellRow As Long
     Dim paiementSheetCalculatedCellsRange As Range
@@ -27,12 +25,10 @@ Sub handlePaiements()
     formatIdCol "PAIEMENT_ID"
     
     lastCellRow = getLastDataRow(ActiveSheet.Range("A:A"))
-    paiementLibelleCol = Range("PAIEMENT_LIBELLE").Column
-    Set rngLibelle = ActiveSheet.Range(Cells(2, paiementLibelleCol), Cells(lastCellRow, paiementLibelleCol))
+    Set rngLibelle = getDataRangeFromColRange(ActiveSheet.Range("PAIEMENT_LIBELLE"))
     
     paiementPackIdCol = Range("PAIEMENT_PACK_ID").Column
     typePaiementCol = Range("PAIEMENT_TYPE").Column
-    datePaiementCol = Range("DATE_OP").Column
     
     'clear col 9 à 10 qui contiennent les valeurs extraites par la suite de la macro
     Set paiementSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, paiementPackIdCol), ActiveSheet.Cells(lastCellRow, typePaiementCol))
