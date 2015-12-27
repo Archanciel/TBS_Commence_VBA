@@ -5,6 +5,9 @@ Private Const PAIEMENT_TYPE_ACHAT_PACK As String = "Achat pack"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
+Private Const TYPE_VIREMENT_DE As String = "Transfert de"
+Private Const TYPE_VIREMENT_DE As String = "Transfert à"
+
 'Formate et traite les données issues des copy/paste des listes de virements en vue de leur
 'importation dans Commence
 Sub handleVirements()
@@ -33,6 +36,17 @@ Sub handleVirements()
     Set virementSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, typeVirementCol), ActiveSheet.Cells(lastCellRow, uidVirementCol))
     virementSheetCalculatedCellsRange.Clear
     
+    'règles de gestion:
+    '
+    'pour chaque cellule de la colonne LIBELLE_VIREMENT,
+    '   si le libellé contient #TRANSTEMP
+    '       si le MONTANT_VIREMENT est positif
+    '           type virement = TYPE_VIREMENT_DE (transfert de)
+    '       si le MONTANT_VIREMENT est négatif
+    '           type virement = TYPE_VIREMENT_A (transfert à)
+    '       end if
+    '       pseudo_virement = extract pseudo
+    '       compte contrepartie = getCompteForPseudo() from lookup table
     For Each cell In rngLibelle
         If (cell.Value = "") Then
             Exit For
