@@ -34,7 +34,7 @@ End Sub
 'dans Commence
 Sub packsFormatAndSortData()
     Application.ScreenUpdating = False
-    formatDate "DATE_ACHAT"
+    formatDateAndTime "DATE_ACHAT", "TIME_ACHAT_PACK"
     'adapte col width for id pack
     Columns("D:D").EntireColumn.AutoFit
     transformType
@@ -128,7 +128,7 @@ Sub handleRevenues()
     
     Application.ScreenUpdating = False
     
-    formatDate "DATE_GAIN_COL"
+    formatDateAndTime "DATE_GAIN_COL", "TIME_GAIN"
     transformMontant "MONTANT_GAIN_COL"
     
     Set rngLibelle = Range("LIBELLE")
