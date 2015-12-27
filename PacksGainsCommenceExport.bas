@@ -6,6 +6,7 @@ Private Const RENDEMENT_XMAS_PACK As String = "28"
 Private Const GAIN_TYPE_BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pack par filleul"
 Private Const GAIN_TYPE_GAIN_PACK_25_PCT As String = "Gain pack 25 %"
 Private Const GAIN_TYPE_GAIN_PACK_28_PCT As String = "Gain pack 28 %"
+Private Const GAIN_TYPE_GAIN_PACK_UNKNOWN As String = "### Gain pack inconnu ###"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
 Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
@@ -179,6 +180,8 @@ Sub handleRevenues()
                     Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_25_PCT
                 ElseIf (tauxGain = 28) Then
                     Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_28_PCT
+                Else
+                    Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_UNKNOWN
                 End If
                 gainPackMonth = extractPackMonthFromGainPackLibelle(cell)
                 Cells(curRow, packIdCol).Value = packId
