@@ -5,6 +5,7 @@ Private Const RENDEMENT_XMAS_PACK As String = "28"
 
 Private Const GAIN_TYPE_BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pack par filleul"
 Private Const GAIN_TYPE_GAIN_PACK_25_PCT As String = "Gain pack 25 %"
+Private Const GAIN_TYPE_GAIN_PACK_28_PCT As String = "Gain pack 28 %"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
 Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
@@ -109,6 +110,7 @@ Sub handleRevenues()
     Dim rngLibelle As Range
     Dim cell As Range
     Dim packId As String
+    Dim tauxGain As Integer
     Dim gainPackMonth As String
     Dim pseudoFilleul As String
     Dim matriceLevel As String
@@ -172,11 +174,15 @@ Sub handleRevenues()
         Else
             packId = extractPackIdFromGainPackLibelle(cell)
             If (packId <> "") Then
-                'gain de 25 % rapporté par un packs du compte
+                tauxGain = extractTauxGainFromGainPackLibelle(cell)
+                If (tauxGain = 25) Then
+                    Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_25_PCT
+                ElseIf (tauxGain = 28) Then
+                    Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_28_PCT
+                End If
                 gainPackMonth = extractPackMonthFromGainPackLibelle(cell)
                 Cells(curRow, packIdCol).Value = packId
                 Cells(curRow, idGainCol).Value = packId & "-" & gainPackMonth
-                Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_25_PCT
             Else
                 pseudoFilleul = extractPseudoFilleulMatrixPrem(cell)
                 If (pseudoFilleul <> "") Then
@@ -266,6 +272,13 @@ Private Function extractPackMonthFromGainPackLibelle(cell As Range) As String
     extractPackMonthFromGainPackLibelle = extractItem(cell, "([0-9]+)/12\]$")
 End Function
 
+'Extrait du libellé d'annonce de gain de pack le numéro du mois du gain.
+'
+'Exemple de libellé: #12934041280-> Profit, 25.00% of 10000.00 deposited [1/12]
+Private Function extractTauxGainFromGainPackLibelle(cell As Range) As String
+    extractTauxGainFromGainPackLibelle = extractItem(cell, "Profit, ([0-9]+)\.")
+End Function
+
 'Extrait du libellé d'annonce de bonus matrice Premium le pseudo du filleul.
 '
 'Exemple de libellé: Niveau réseau Premium#1 bonus (tamcerise)  ou
@@ -331,7 +344,7 @@ Private Function extractMatriceLevelMatrixSE(cell As Range) As String
         strLevel = extractItem(cell, "^SVIP level#(\d*) bonus")
     End If
     
-    extractMatriceLevelMatrixPrem = strLevel
+    extractMatriceLevelMatrixSE = strLevel
 End Function
 
 'Extrait le pseudo du filleul du libellé d'annonce de bonus en cas d'upgrade de celui-ci à Premium.
