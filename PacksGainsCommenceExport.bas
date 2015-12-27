@@ -37,8 +37,8 @@ Sub packsFormatAndSortData()
     formatDateAndTime "DATE_ACHAT", "TIME_ACHAT_PACK"
     'adapte col width for id pack
     Columns("D:D").EntireColumn.AutoFit
-    transformType
     formatRendement
+    transformType
     transformMontant "MONTANT_PACK"
     transformMontantGain "GAIN_TOTAL"
     replaceEnCoursByZeroEchuByOne
@@ -366,6 +366,22 @@ Attribute transformType.VB_ProcData.VB_Invoke_Func = " \n14"
 
 '
     ActiveSheet.Range("TYPE").Select
+    
+    'handling xmas pack denomination
+    Selection.Replace What:="Xmas pack 1000", Replacement:="Bronze", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    Selection.Replace What:="Xmas pack 2000", Replacement:="Silver", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    Selection.Replace What:="Xmas pack 4000", Replacement:="Gold", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+    Selection.Replace What:="Xmas pack 10000", Replacement:="Platinum", LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+    'handling regular pack denomination
     Selection.Replace What:=" USD", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
