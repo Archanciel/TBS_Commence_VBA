@@ -110,7 +110,7 @@ End Sub
 'make amount values nicely right aligned like real numbers
 Sub transformMontant(colName As String)
     ActiveSheet.Range(colName).Select
-    Selection.Replace What:=",", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:=",", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
 End Sub
@@ -143,4 +143,19 @@ Function getDataRangeFromColRange(colRange As Range) As Range
     lastColRangeRow = getLastDataRow(colRange)
     Set getDataRangeFromColRange = ActiveSheet.Range(colRange.Cells(2, 1), colRange.Cells(lastColRangeRow, 1))
 End Function
+
+'remplacement d'un string par un autre dans le range passé en parm
+Sub replaceInRange(replaceRange As Range, strToReplace As String, replacementStr As String, boolMatchCase As Boolean)
+'
+' transformType Macro
+'
+
+'
+    replaceRange.Select
+    
+    'handling xmas pack denomination
+    Selection.replace What:=strToReplace, Replacement:=replacementStr, LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=boolMatchCase, SearchFormat:=False, _
+        ReplaceFormat:=False
+End Sub
 
