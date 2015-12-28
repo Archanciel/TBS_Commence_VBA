@@ -36,7 +36,10 @@ Sub handleVirements()
     Set virementSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, typeVirementCol), ActiveSheet.Cells(lastCellRow, uidVirementCol))
     virementSheetCalculatedCellsRange.Clear
     
-    'règles de gestion:
+    'au début, je n'utilisais pas systématiquement le tag #TRANSTEMP !!
+    replaceInRange rngLibelle, "Retransfers", "#TRANSTEMP", False
+    
+    'Règles de gestion:
     '
     'pour chaque cellule de la colonne LIBELLE_VIREMENT,
     '   si le libellé contient #TRANSTEMP
@@ -47,6 +50,7 @@ Sub handleVirements()
     '       end if
     '       pseudo_virement = extract pseudo
     '       compte contrepartie = getCompteForPseudo() from lookup table
+    '   sinon, si
     For Each cell In rngLibelle
         If (cell.Value = "") Then
             Exit For
