@@ -6,7 +6,7 @@ Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
 Private Const TYPE_VIREMENT_DE As String = "Transfert de"
-Private Const TYPE_VIREMENT_DE As String = "Transfert à"
+Private Const TYPE_VIREMENT_A As String = "Transfert à"
 
 'Formate et traite les données issues des copy/paste des listes de virements en vue de leur
 'importation dans Commence
