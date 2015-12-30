@@ -85,14 +85,9 @@ Sub packsExportDataForCommence()
     ActiveWorkbook.Save
     deleteNomComptes
     deleteTopRow
-    saveSheetAsTabDelimTxtFile "Packs", "Packs JPS et filleuls Commence export.txt"
+    saveSheetAsTabDelimTxtFileTimeStamped ActiveSheet.Name
     Application.ScreenUpdating = True
     closeWithoutSave
-End Sub
-
-Private Sub closeWithoutSave()
-    MsgBox "La version modifiée (sans ligne de titres) de la spreadsheet va être fermée sans être sauvée. Veuillez rouvrir la version .xlsm (sauvée avant l'exportation) !", vbInformation
-    ActiveWorkbook.Close savechanges:=False
 End Sub
 
 'Exporte les données de la feuille Gains dans un fichier texte tab separated pouvant être importé dans Commence
@@ -100,7 +95,7 @@ Sub gainsExportDataForCommence()
     Application.ScreenUpdating = False
     ActiveWorkbook.Save
     deleteTopRow
-    saveSheetAsTabDelimTxtFile "Gains", "Gains JPS et filleuls Commence export.txt"
+    saveSheetAsTabDelimTxtFileTimeStamped ActiveSheet.Name
     Application.ScreenUpdating = True
     closeWithoutSave
 End Sub
@@ -384,33 +379,33 @@ Attribute transformType.VB_ProcData.VB_Invoke_Func = " \n14"
     ActiveSheet.Range("TYPE").Select
     
     'handling xmas pack denomination
-    Selection.Replace What:="Xmas pack 1000", Replacement:="Bronze", LookAt:=xlPart, _
+    Selection.replace What:="Xmas pack 1000", Replacement:="Bronze", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="Xmas pack 2000", Replacement:="Silver", LookAt:=xlPart, _
+    Selection.replace What:="Xmas pack 2000", Replacement:="Silver", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="Xmas pack 4000", Replacement:="Gold", LookAt:=xlPart, _
+    Selection.replace What:="Xmas pack 4000", Replacement:="Gold", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="Xmas pack 10000", Replacement:="Platinum", LookAt:=xlPart, _
+    Selection.replace What:="Xmas pack 10000", Replacement:="Platinum", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
         
     'handling regular pack denomination
-    Selection.Replace What:=" USD", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:=" USD", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="($1000)", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:="($1000)", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="($2000)", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:="($2000)", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="($4000)", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:="($4000)", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
-    Selection.Replace What:="($10000)", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:="($10000)", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
     Selection.NumberFormat = "@"
@@ -422,7 +417,7 @@ Private Sub transformMontantGain(colName As String)
 
 '
     ActiveSheet.Range(colName).Select
-    Selection.Replace What:=",", Replacement:="", LookAt:=xlPart, _
+    Selection.replace What:=",", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
 End Sub
@@ -434,7 +429,7 @@ Attribute replaceEnCoursByZeroEchuByOne.VB_ProcData.VB_Invoke_Func = " \n14"
 
 '
     ActiveSheet.Range("ECHU").Select
-    Selection.Replace What:="En cours", Replacement:="0", LookAt:=xlPart, _
+    Selection.replace What:="En cours", Replacement:="0", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
 End Sub
@@ -468,39 +463,6 @@ Attribute triPourDefinitionRang.VB_ProcData.VB_Invoke_Func = " \n14"
         .SortMethod = xlPinYin
         .Apply
     End With
-End Sub
-
-'Sauve une feuille spécifique dans un fichier txt tab delimited
-Private Sub saveSheetAsTabDelimTxtFile(sheetName As String, fileName As String)
-    Dim ans As Long
-    Dim sSaveAsFilePath As String
-
-    On Error GoTo ErrHandler:
-    
-    sSaveAsFilePath = "D:\Users\Jean-Pierre\OneDrive\Documents\Excel\" & fileName
-
-    If Dir(sSaveAsFilePath) <> "" Then
-        ans = MsgBox("Le fichier " & sSaveAsFilePath & " existe déjà. Remplacer ?", vbYesNo + vbExclamation)
-        If ans <> vbYes Then
-            Exit Sub
-        Else
-            Kill sSaveAsFilePath
-        End If
-    End If
-    
-    Sheets(sheetName).Copy '//Copy sheet Packs to new workbook
-    ActiveWorkbook.SaveAs sSaveAsFilePath, xlTextWindows '//Save as text (tab delimited) file
-    
-    If ActiveWorkbook.Name <> ThisWorkbook.Name Then '//Double sure we don't close this workbook
-        ActiveWorkbook.Close False
-    End If
-
-My_Exit:
-    Exit Sub
-
-ErrHandler:
-    MsgBox Err.Description
-    Resume My_Exit
 End Sub
 
 'Supprime la ligne contenant les en-têtes de colonnes afin qu'elles ne soient pas exportées.
