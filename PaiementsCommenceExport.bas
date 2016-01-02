@@ -69,6 +69,16 @@ Sub handlePaiements()
     
     Application.ScreenUpdating = True
 End Sub
+'Exporte les données de la feuille Paiements dans un fichier texte tab separated pouvant être importé dans Commence
+Sub paiementsExportDataForCommence()
+    Application.ScreenUpdating = False
+    ActiveWorkbook.Save
+    deleteNomComptes "NOM_COMPTES_P"
+    deleteTopRow
+    saveSheetAsTabDelimTxtFileTimeStamped ActiveSheet.Name
+    Application.ScreenUpdating = True
+    closeWithoutSave
+End Sub
 'Extrait du libellé contenu dans la Cell passé en parm le numéro de pack
 'qu'il contient.
 '
