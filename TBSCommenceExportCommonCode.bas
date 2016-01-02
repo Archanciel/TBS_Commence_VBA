@@ -207,5 +207,34 @@ Sub closeWithoutSave()
     ActiveWorkbook.Close savechanges:=False
 End Sub
 
+'Delete la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
+'En effet, ces données ne doivent pas être exportées !
+'
+'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
+'la feuille Packs
+Sub deleteNomComptes(rangeNameStr As String)
+    ActiveSheet.Range(rangeNameStr).Select
+    ActiveCell.FormulaR1C1 = ""
+    ActiveCell.Offset(1, 0).Select
+    ActiveCell.FormulaR1C1 = ""
+    ActiveCell.Offset(1, 0).Select
+    ActiveCell.FormulaR1C1 = ""
+    ActiveCell.Offset(1, 0).Select
+    ActiveCell.FormulaR1C1 = ""
+    ActiveCell.Offset(1, 0).Select
+    ActiveCell.FormulaR1C1 = ""
+    ActiveCell.Offset(1, 0).Select
+    ActiveCell.FormulaR1C1 = ""
+End Sub
+
+'Supprime la ligne contenant les en-têtes de colonnes afin qu'elles ne soient pas exportées.
+'
+'Cette suppression n'affecte que la version txt de la speadsheet et non la version xlsm !
+Sub deleteTopRow()
+    Rows("1:1").Select
+    Selection.Delete Shift:=xlUp
+End Sub
+
+
 
 
