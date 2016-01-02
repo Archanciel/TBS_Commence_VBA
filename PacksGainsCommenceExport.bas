@@ -83,7 +83,7 @@ End Sub
 Sub packsExportDataForCommence()
     Application.ScreenUpdating = False
     ActiveWorkbook.Save
-    deleteNomComptes
+    deleteNomComptes "NOM_COMPTES"
     deleteTopRow
     saveSheetAsTabDelimTxtFileTimeStamped ActiveSheet.Name
     Application.ScreenUpdating = True
@@ -94,6 +94,7 @@ End Sub
 Sub gainsExportDataForCommence()
     Application.ScreenUpdating = False
     ActiveWorkbook.Save
+    deleteNomComptes "NOM_COMPTES_G"
     deleteTopRow
     saveSheetAsTabDelimTxtFileTimeStamped ActiveSheet.Name
     Application.ScreenUpdating = True
@@ -465,14 +466,6 @@ Attribute triPourDefinitionRang.VB_ProcData.VB_Invoke_Func = " \n14"
     End With
 End Sub
 
-'Supprime la ligne contenant les en-têtes de colonnes afin qu'elles ne soient pas exportées.
-'
-'Cette suppression n'affecte que la version txt de la speadsheet et non la version xlsm !
-Private Sub deleteTopRow()
-    Rows("1:1").Select
-    Selection.Delete Shift:=xlUp
-End Sub
-
 'Recrée la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
 'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
 'la feuille Packs
@@ -489,26 +482,6 @@ Private Sub writeNomComptes()
     ActiveCell.FormulaR1C1 = "Compte TBS Papa"
     ActiveCell.Offset(1, 0).Select
     ActiveCell.FormulaR1C1 = "Compte TBS Tamara"
-End Sub
-
-'Delete la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
-'En effet, ces données ne doivent pas être exportées !
-'
-'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
-'la feuille Packs
-Private Sub deleteNomComptes()
-    ActiveSheet.Range("NOM_COMPTES").Select
-    ActiveCell.FormulaR1C1 = ""
-    ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = ""
-    ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = ""
-    ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = ""
-    ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = ""
-    ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = ""
 End Sub
 
 'Sub appelée par packsFormatAndSortData()
