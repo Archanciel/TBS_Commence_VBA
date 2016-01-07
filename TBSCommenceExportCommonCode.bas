@@ -146,11 +146,6 @@ End Function
 
 'remplacement d'un string par un autre dans le range passé en parm
 Sub replaceInRange(replaceRange As Range, strToReplace As String, replacementStr As String, boolMatchCase As Boolean)
-'
-' transformType Macro
-'
-
-'
     replaceRange.Select
     
     'handling xmas pack denomination
