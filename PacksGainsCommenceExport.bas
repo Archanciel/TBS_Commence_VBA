@@ -39,12 +39,11 @@ Sub packsFormatAndSortData()
     formatDateAndTime "DATE_ACHAT", "TIME_ACHAT_PACK"
     'adapte col width for id pack
     Columns("D:D").EntireColumn.AutoFit
-    formatRendement
+    formatRendement 'doit être appelé avant transformType !!
     transformType
     transformMontant "MONTANT_PACK"
     transformMontantGain "GAIN_TOTAL"
     replaceEnCoursByZeroEchuByOne
-    triPourDefinitionRang
     writeNomComptes
     buildLookupTables
     Sheets("Packs").Select
@@ -372,11 +371,6 @@ Attribute formatDate.VB_ProcData.VB_Invoke_Func = " \n14"
 End Sub
 Private Sub transformType()
 Attribute transformType.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' transformType Macro
-'
-
-'
     ActiveSheet.Range("TYPE").Select
     
     'handling xmas pack denomination
@@ -412,11 +406,6 @@ Attribute transformType.VB_ProcData.VB_Invoke_Func = " \n14"
     Selection.NumberFormat = "@"
 End Sub
 Private Sub transformMontantGain(colName As String)
-'
-' transformMontant Macro
-'
-
-'
     ActiveSheet.Range(colName).Select
     Selection.replace What:=",", Replacement:="", LookAt:=xlPart, _
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
@@ -441,30 +430,6 @@ Function getLastDataRow(colCell As Range) As Long
     Set lastCell = colCell.End(xlDown)
     getLastDataRow = lastCell.Row
 End Function
-Private Sub triPourDefinitionRang()
-Attribute triPourDefinitionRang.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-' triPourDefinitionRang Macro
-'
-
-'
-    Cells.Select
-    ActiveWorkbook.ActiveSheet.Sort.SortFields.Clear
-    ActiveWorkbook.ActiveSheet.Sort.SortFields.Add Key:=Range("A2:A29"), SortOn:=xlSortOnValues, Order:=xlAscending, _
-        DataOption:=xlSortNormal
-    ActiveWorkbook.ActiveSheet.Sort.SortFields.Add Key:=Range("C2:C29"), SortOn:=xlSortOnValues, Order:=xlAscending, _
-        DataOption:=xlSortNormal
-    ActiveWorkbook.ActiveSheet.Sort.SortFields.Add Key:=Range("D2:D29"), SortOn:=xlSortOnValues, Order:=xlAscending, _
-        DataOption:=xlSortNormal
-    With ActiveWorkbook.ActiveSheet.Sort
-        .SetRange Range("A1:J29")
-        .Header = xlYes
-        .MatchCase = False
-        .Orientation = xlTopToBottom
-        .SortMethod = xlPinYin
-        .Apply
-    End With
-End Sub
 
 'Recrée la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
 'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
