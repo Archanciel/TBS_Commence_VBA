@@ -36,6 +36,7 @@ End Sub
 'dans Commence
 Sub packsFormatAndSortData()
     Application.ScreenUpdating = False
+    formatIdCol ("NOM_PACK")
     formatDateAndTime "DATE_ACHAT", "TIME_ACHAT_PACK"
     'adapte col width for id pack
     Columns("D:D").EntireColumn.AutoFit
