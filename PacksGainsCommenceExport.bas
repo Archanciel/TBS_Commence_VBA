@@ -9,8 +9,8 @@ Private Const GAIN_TYPE_GAIN_PACK_28_PCT As String = "Gain pack 28 %"
 Private Const GAIN_TYPE_GAIN_PACK_UNKNOWN As String = "### Gain pack inconnu ###"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
 Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
-Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul ugr Premium"
-Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_SE = "Bonus filleul ugr SE"
+Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul upgr Premium"
+Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_SE = "Bonus filleul upgr SE"
 Sub clearSheet()
     Dim delRange As Range
     Dim topLeftTitleCell As Range
