@@ -65,6 +65,7 @@ Sub handlePaiements()
         End If
     Next cell
     
+    formatIdCol ("PAIEMENT_PACK_ID")
     clearAnySelection
     
     Application.ScreenUpdating = True
@@ -86,7 +87,7 @@ End Sub
 '
 'Exemple de libellé: #12934088431 Paiement de dépot
 Private Function extractPackIdFromLibelleDepotCell(cell As Range) As String
-    extractPackIdFromLibelleDepotCell = extractItem(cell, "^#([0-9]{11}) Paiement de dépot")
+    extractPackIdFromLibelleDepotCell = extractItem(cell, "^#([0-9]+) Paiement de dépot")
 End Function
 'Extrait du libellé contenu dans la Cell passé en parm le numéro de pack
 'qu'il contient.
