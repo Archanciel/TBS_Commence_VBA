@@ -254,14 +254,14 @@ End Sub
 '
 'Exemple de libellé: Bonus sponsor pour dépot(#13441058360)
 Private Function extractPackIdFromBonusLibelle(cell As Range) As String
-    extractPackIdFromBonusLibelle = extractItem(cell, "dépot\(#([0-9]{11})\)$")
+    extractPackIdFromBonusLibelle = extractItem(cell, "dépot\(#([0-9]+)\)$")
 End Function
 
 'Extrait du libellé d'annonce de gain de pack le numéro de pack  qui a généré le gain.
 '
 'Exemple de libellé: #12934041280-> Profit, 25.00% of 10000.00 deposited [1/12]
 Private Function extractPackIdFromGainPackLibelle(cell As Range) As String
-    extractPackIdFromGainPackLibelle = extractItem(cell, "^#([0-9]{11})")
+    extractPackIdFromGainPackLibelle = extractItem(cell, "^#([0-9]+)")
 End Function
 
 'Extrait du libellé d'annonce de gain de pack le numéro du mois du gain.
