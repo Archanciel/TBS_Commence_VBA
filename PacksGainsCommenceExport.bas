@@ -124,6 +124,7 @@ Sub handleRevenues()
     Dim lookupRangePackContrat As Range
     Dim lookupRangeContratPseudo As Range
     Dim gainSheetCalculatedCellsRange As Range
+    Dim noGainCol As Long
     
     Application.ScreenUpdating = False
     
@@ -139,6 +140,7 @@ Sub handleRevenues()
     matriceLevelCol = Range("MATRICE_LEVEL").Column
     pseudoFilleulCol = Range("PSEUDO_FILLEUL").Column
     dateGainCol = Range("DATE_GAIN_COL").Column
+    noGainCol = Range("NO_GAIN").Column
     
     Set lookupTablesSheet = Sheets("Lookup tables")
     
@@ -171,6 +173,7 @@ Sub handleRevenues()
         Else
             packId = extractPackIdFromGainPackLibelle(cell)
             If (packId <> "") Then
+                'revenu de pack de 25 ou 28 %
                 tauxGain = extractTauxGainFromGainPackLibelle(cell)
                 If (tauxGain = 25) Then
                     Cells(curRow, typeGainCol).Value = GAIN_TYPE_GAIN_PACK_25_PCT
@@ -182,6 +185,7 @@ Sub handleRevenues()
                 gainPackMonth = extractPackMonthFromGainPackLibelle(cell)
                 Cells(curRow, packIdCol).Value = packId
                 Cells(curRow, idGainCol).Value = packId & "-" & gainPackMonth
+                Cells(curRow, noGainCol).Value = gainPackMonth
             Else
                 pseudoFilleul = extractPseudoFilleulMatrixPrem(cell)
                 If (pseudoFilleul <> "") Then
