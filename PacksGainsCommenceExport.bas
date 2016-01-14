@@ -75,7 +75,14 @@ Private Sub formatRendement()
             'XMAS pack avec rendement de 28 %
             Cells(curRow, rendementCol).Value = RENDEMENT_XMAS_PACK
         Else
-            Cells(curRow, rendementCol).Value = RENDEMENT_REGULAR_PACK
+            If IsEmpty(Cells(curRow, rendementCol).Value) Then
+                'il arrive en effet que la feuille pack a été processée auparavant et que l'on rajoute une ligne
+                'pour un nouveau pack. Si la feuille contenait des lignes pour, par ex, un xmas pack 1000, le type
+                'de pack ayant été transformé en Bronze, sans cette garde, le rendement de 28 % serait écrasé en 25 % !!
+                '
+                'I know, this stinks, but I chosed not to create additional pack types !
+                Cells(curRow, rendementCol).Value = RENDEMENT_REGULAR_PACK
+            End If
         End If
     Next cell
 End Sub
@@ -125,8 +132,12 @@ Sub handleRevenues()
     Dim lookupRangeContratPseudo As Range
     Dim gainSheetCalculatedCellsRange As Range
     Dim noGainCol As Long
+    Dim nomCheckBOTBSForGainCol As Long
+    Dim montantGainCol As Long
+    Dim windowsWideThousandSeparator As String
     
     Application.ScreenUpdating = False
+    windowsWideThousandSeparator = Application.International(xlThousandsSeparator)
     
     formatDateAndTime "DATE_GAIN_COL", "TIME_GAIN"
     transformMontant "MONTANT_GAIN_COL"
@@ -141,6 +152,8 @@ Sub handleRevenues()
     pseudoFilleulCol = Range("PSEUDO_FILLEUL").Column
     dateGainCol = Range("DATE_GAIN_COL").Column
     noGainCol = Range("NO_GAIN").Column
+    nomCheckBOTBSForGainCol = Range("NOM_ID_CHECK_BO_TBS_FOR_GAIN").Column
+    montantGainCol = Range("MONTANT_GAIN").Column
     
     Set lookupTablesSheet = Sheets("Lookup tables")
     
@@ -186,6 +199,7 @@ Sub handleRevenues()
                 Cells(curRow, packIdCol).Value = packId
                 Cells(curRow, idGainCol).Value = packId & "-" & gainPackMonth
                 Cells(curRow, noGainCol).Value = gainPackMonth
+                Cells(curRow, nomCheckBOTBSForGainCol).Value = buildNomLinkedCheckBOTBS(curRow, Cells(curRow, compteReceivingGainCol).Value, packId, montantGainCol, windowsWideThousandSeparator, gainPackMonth)
             Else
                 pseudoFilleul = extractPseudoFilleulMatrixPrem(cell)
                 If (pseudoFilleul <> "") Then
@@ -235,6 +249,20 @@ Sub handleRevenues()
     Application.ScreenUpdating = True
 End Sub
 
+'Construit le nom (qui a fonction d'identifiant) de la fiche Todo TBS qui doit être liée au gain
+'
+'Exemple de nom: Gain Compte TBS Antoine 17608086151 75 1/12
+'                Gain Compte TBS JPS 12934054302 1 000 3/12
+'
+'A noter l'utilisation du séparateur de millier tel que définit dans Windows !
+Private Function buildNomLinkedCheckBOTBS(curRow As Long, compteReceivingGainStr As String, packId As String, montantGainCol As Long, windowsWideThousandSeparator As String, gainPackMonth As String) As String
+    Dim nomLinkedTodoTBS As String
+    Dim formatedMontantGain As String
+    
+    formatedMontantGain = Format(Cells(curRow, montantGainCol).Value, "#" & windowsWideThousandSeparator & "##0")
+    nomLinkedTodoTBS = "Gain " & compteReceivingGainStr & " " & packId & " " & formatedMontantGain & " " & gainPackMonth & "/12"
+    buildNomLinkedCheckBOTBS = nomLinkedTodoTBS
+End Function
 Private Sub formatPseudoFilleulForPackId(packId As String, curRow As Long, pseudoFilleulCol As Long, lookupRangePackContrat As Range, lookupRangeContratPseudo As Range)
     Dim nomContratCommence As Variant
     Dim pseudoTBS As Variant
