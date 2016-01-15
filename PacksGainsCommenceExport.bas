@@ -7,10 +7,12 @@ Private Const GAIN_TYPE_BONUS_ACHAT_PACK_PAR_FILLEUL As String = "Bonus achat pa
 Private Const GAIN_TYPE_GAIN_PACK_25_PCT As String = "Gain pack 25 %"
 Private Const GAIN_TYPE_GAIN_PACK_28_PCT As String = "Gain pack 28 %"
 Private Const GAIN_TYPE_GAIN_PACK_UNKNOWN As String = "### Gain pack inconnu ###"
-Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM = "Bonus matrice Premium"
-Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE = "Bonus matrice SE"
-Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM = "Bonus filleul upgr Premium"
-Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_SE = "Bonus filleul upgr SE"
+Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_PREMIUM As String = "Bonus matrice Premium"
+Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE As String = "Bonus matrice SE"
+Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM As String = "Bonus filleul upgr Premium"
+Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_SE As String = "Bonus filleul upgr SE"
+Private Const GAIN_IMPORT_FLAG_TRUE As String = "1"
+
 Sub clearSheet()
     Dim delRange As Range
     Dim topLeftTitleCell As Range
@@ -135,6 +137,7 @@ Sub handleRevenues()
     Dim nomCheckBOTBSForGainCol As Long
     Dim montantGainCol As Long
     Dim windowsWideThousandSeparator As String
+    Dim importFlagCol As Long
     
     Application.ScreenUpdating = False
     windowsWideThousandSeparator = Application.International(xlThousandsSeparator)
@@ -154,6 +157,7 @@ Sub handleRevenues()
     noGainCol = Range("NO_GAIN").Column
     nomCheckBOTBSForGainCol = Range("NOM_ID_CHECK_BO_TBS_FOR_GAIN").Column
     montantGainCol = Range("MONTANT_GAIN").Column
+    importFlagCol = Range("GAIN_IMPORT").Column
     
     Set lookupTablesSheet = Sheets("Lookup tables")
     
@@ -175,6 +179,7 @@ Sub handleRevenues()
         
         curRow = cell.Row
         
+        Cells(curRow, importFlagCol).Value = GAIN_IMPORT_FLAG_TRUE
         packId = extractPackIdFromBonusLibelle(cell)
         
         If (packId <> "") Then
