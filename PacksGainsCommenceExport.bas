@@ -12,6 +12,7 @@ Private Const GAIN_TYPE_BONUS_FILLEUL_MATRICE_SE As String = "Bonus matrice SE"
 Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_PREMIUM As String = "Bonus filleul upgr Premium"
 Private Const GAIN_TYPE_BONUS_FILLEUL_UPGR_SE As String = "Bonus filleul upgr SE"
 Private Const GAIN_IMPORT_FLAG_TRUE As String = "1"
+Private Const GAIN_VERIFIED_FLAG_TRUE As String = "1"
 
 Sub clearSheet()
     Dim delRange As Range
@@ -138,6 +139,7 @@ Sub handleRevenues()
     Dim montantGainCol As Long
     Dim windowsWideThousandSeparator As String
     Dim importFlagCol As Long
+    Dim verifiedFlagCol As Long
     
     Application.ScreenUpdating = False
     windowsWideThousandSeparator = Application.International(xlThousandsSeparator)
@@ -158,6 +160,7 @@ Sub handleRevenues()
     nomCheckBOTBSForGainCol = Range("NOM_ID_CHECK_BO_TBS_FOR_GAIN").Column
     montantGainCol = Range("MONTANT_GAIN").Column
     importFlagCol = Range("GAIN_IMPORT").Column
+    verifiedFlagCol = Range("GAIN_VERIFIED").Column
     
     Set lookupTablesSheet = Sheets("Lookup tables")
     
@@ -180,6 +183,7 @@ Sub handleRevenues()
         curRow = cell.Row
         
         Cells(curRow, importFlagCol).Value = GAIN_IMPORT_FLAG_TRUE
+        Cells(curRow, verifiedFlagCol).Value = GAIN_VERIFIED_FLAG_TRUE
         packId = extractPackIdFromBonusLibelle(cell)
         
         If (packId <> "") Then
