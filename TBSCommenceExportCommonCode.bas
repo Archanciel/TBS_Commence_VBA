@@ -13,9 +13,12 @@ Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = 
     Dim firstEmptyCellRow As Long
     Dim lastEmptyCellRow As Long
     Dim emptyAccountNameCells As Range
+    Dim lastFilledCellRow As Long
     
     Selection.Copy
     firstEmptyCellRow = getLastDataRow(Range("A:A")) + 1
+    lastFilledCellRow = getLastDataRowFromEnd(Range("A:A"))
+    
     
     If (firstEmptyCellRow > 1000000) Then
         'le cas si la colonne contenant les noms de compte est vide !
@@ -25,7 +28,12 @@ Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = 
     lastEmptyCellRow = getLastDataRow(Range("B:B"))
     
     If (firstEmptyCellRow > lastEmptyCellRow) Then
-        MsgBox "Aucune cellule vide où copier le nom du compte détectée !", vbInformation
+        MsgBox "Aucune cellule vide où copier le nom du compte détectée: macro interrompue sans modification de la spreadsheet !", vbInformation
+        Exit Sub
+    End If
+    
+    If (firstEmptyCellRow < lastFilledCellRow) Then
+        MsgBox "Cellule(s) vide(s) suivie(s) de cellule(s) non vide(s): macro interrompue sans modification de la spreadsheet !", vbInformation
         Exit Sub
     End If
     
@@ -143,7 +151,23 @@ Function getDataRangeFromColRange(colRange As Range) As Range
     lastColRangeRow = getLastDataRow(colRange)
     Set getDataRangeFromColRange = ActiveSheet.Range(colRange.Cells(2, 1), colRange.Cells(lastColRangeRow, 1))
 End Function
-
+Function getLastDataRow(colCell As Range) As Long
+    Dim lastCell As Range
+    Dim lastCellRow As Long
+    
+    Set lastCell = colCell.End(xlDown)
+    getLastDataRow = lastCell.Row
+End Function
+Function getLastDataRowFromEnd(colCell As Range) As Long
+'Find the last used row in a Column: column A in this example
+    Dim lastRow As Long
+    
+    With ActiveSheet
+        lastRow = .Cells(.Rows.Count, colCell.Column).End(xlUp).Row
+    End With
+    
+    getLastDataRowFromEnd = lastRow
+End Function
 'remplacement d'un string par un autre dans le range passé en parm
 Sub replaceInRange(replaceRange As Range, strToReplace As String, replacementStr As String, boolMatchCase As Boolean)
     replaceRange.Select
