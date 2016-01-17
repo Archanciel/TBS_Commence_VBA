@@ -250,6 +250,7 @@ Sub handleRevenues()
         End If
     Next cell
     
+    formatIdCol "PACK_ID"
     clearAnySelection
     
     Application.ScreenUpdating = True
