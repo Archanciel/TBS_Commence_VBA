@@ -465,14 +465,6 @@ Attribute replaceEnCoursByZeroEchuByOne.VB_ProcData.VB_Invoke_Func = " \n14"
         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
         ReplaceFormat:=False
 End Sub
-Function getLastDataRow(colCell As Range) As Long
-    Dim lastCell As Range
-    Dim lastCellRow As Long
-    
-    Set lastCell = colCell.End(xlDown)
-    getLastDataRow = lastCell.Row
-End Function
-
 'Recrée la  zone NOM_COMPTES qui contient les noms de contrats TBS dans Commence.
 'Ces noms sont utilisés en copy/paste lors de l'entrée de nouvelles données dans
 'la feuille Packs
