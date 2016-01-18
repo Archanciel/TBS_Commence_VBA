@@ -2,6 +2,7 @@ Attribute VB_Name = "TBSCommenceExportCommonCode"
 Option Explicit
 'Ce module contient des macros, procédures et fonctions communes à tous les
 'modules spécifiques aux feuilles du workbook
+Private Const COMMENCE_DATA_EXPORT_DIR As String = "D:\Users\Jean-Pierre\OneDrive\Documents\Commence\FILES\"
 
 Sub MacroCopySelectedAccountNameInEmptyCells()
 Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = "N\n14"
@@ -194,7 +195,7 @@ Sub saveSheetAsTabDelimTxtFile(sheetName As String, fileName As String)
 
     On Error GoTo ErrHandler:
     
-    sSaveAsFilePath = "D:\Users\Jean-Pierre\OneDrive\Documents\TBS\" & fileName
+    sSaveAsFilePath = COMMENCE_DATA_EXPORT_DIR & fileName
 
     If Dir(sSaveAsFilePath) <> "" Then
         ans = MsgBox("Le fichier " & sSaveAsFilePath & " existe déjà. Remplacer ?", vbYesNo + vbExclamation)
