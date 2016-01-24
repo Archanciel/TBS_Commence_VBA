@@ -5,8 +5,8 @@ Private Const PAIEMENT_TYPE_ACHAT_PACK As String = "Achat pack"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
-Private Const TYPE_VIREMENT_DE As String = "Transfert de"
-Private Const TYPE_VIREMENT_A As String = "Transfert à"
+Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transfert temporaire de"    'Transfert de fonds temporaire sur notre compte
+Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transfert temporaire à"      'Transfert de fonds temporaire sur le compte du pseudo
 
 'Formate et traite les données issues des copy/paste des listes de virements en vue de leur
 'importation dans Commence
@@ -44,9 +44,9 @@ Sub handleVirements()
     'pour chaque cellule de la colonne LIBELLE_VIREMENT,
     '   si le libellé contient #TRANSTEMP
     '       si le MONTANT_VIREMENT est positif
-    '           type virement = TYPE_VIREMENT_DE (transfert de)
+    '           type virement = TYPE_VIREMENT_TEMPORAIRE_DE
     '       si le MONTANT_VIREMENT est négatif
-    '           type virement = TYPE_VIREMENT_A (transfert à)
+    '           type virement = TYPE_VIREMENT_TEMPORAIRE_A
     '       end if
     '       pseudo_virement = extract pseudo
     '       compte contrepartie = getCompteForPseudo() from lookup table
