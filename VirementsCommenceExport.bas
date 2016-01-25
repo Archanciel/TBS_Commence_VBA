@@ -5,8 +5,8 @@ Private Const PAIEMENT_TYPE_ACHAT_PACK As String = "Achat pack"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
-Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transfert temporaire de"    'Transfert de fonds temporaire sur notre compte
-Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transfert temporaire à"      'Transfert de fonds temporaire sur le compte du pseudo
+Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transfert temporaire de"    'Transfert de fonds temporaire sur notre BO
+Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transfert temporaire à"      'Transfert de fonds temporaire sur le BO du pseudo
 
 'Formate et traite les données issues des copy/paste des listes de virements en vue de leur
 'importation dans Commence
@@ -20,6 +20,9 @@ Sub handleVirements()
     Dim timePaiementCol As Long
     Dim lastCellRow As Long
     Dim virementSheetCalculatedCellsRange As Range
+    Dim operationTag As String
+    Dim montantOpCol As Long
+    Dim montantOp As Double
     
     Application.ScreenUpdating = False
     
@@ -31,6 +34,7 @@ Sub handleVirements()
     
     uidVirementCol = Range("UID_VIREMENT").Column
     typeVirementCol = Range("TYPE_VIREMENT").Column
+    montantOpCol = Range("MONTANT_VIREMENT").Column
     
     'clear col 8 à 10 qui contiennent les valeurs extraites par la suite de la macro
     Set virementSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, typeVirementCol), ActiveSheet.Cells(lastCellRow, uidVirementCol))
@@ -43,14 +47,14 @@ Sub handleVirements()
     '
     'pour chaque cellule de la colonne LIBELLE_VIREMENT,
     '   si le libellé contient #TRANSTEMP
-    '       si le MONTANT_VIREMENT est positif
+    '       si le MONTANT_OPERATION est positif
     '           type virement = TYPE_VIREMENT_TEMPORAIRE_DE
-    '       si le MONTANT_VIREMENT est négatif
+    '       si le MONTANT_OPERATION est négatif
     '           type virement = TYPE_VIREMENT_TEMPORAIRE_A
     '       end if
     '       pseudo_virement = extract pseudo
     '       compte contrepartie = getCompteForPseudo() from lookup table
-    '   sinon, si
+    '   sinon, si ...
     For Each cell In rngLibelle
         If (cell.Value = "") Then
             Exit For
@@ -58,12 +62,17 @@ Sub handleVirements()
         
         curRow = cell.Row
         
-        paiemenrPackId = extractPackIdFromLibelleDepotCell(cell)
+        operationTag = extractTranstempFromLibelle(cell)
         
-        If (paiemenrPackId <> "") Then
-            'paiement pour un achat de pack (dépôt)
-            Cells(curRow, uidVirementCol).Value = paiemenrPackId
-            Cells(curRow, typeVirementCol).Value = PAIEMENT_TYPE_ACHAT_PACK
+        If (operationTag <> "") Then
+            'nous sommes en présence d'un transfert temporaire
+            montantOp = Cells(curRow, montantOpCol).Value
+            If montantOp >= 0 Then
+                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_TEMPORAIRE_DE
+            Else
+                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_TEMPORAIRE_A
+            End If
+            'handle no contrat (inclu contrepartie
         Else
             paiemenrPackId = extractPackIdFromLibelleSEMembershipCell(cell)
             If (paiemenrPackId <> "") Then
@@ -94,6 +103,12 @@ End Sub
 'Exemple de libellé: #12934088431 Paiement de dépot
 Private Function extractPackIdFromLibelleDepotCell(cell As Range) As String
     extractPackIdFromLibelleDepotCell = extractItem(cell, "^#([0-9]+) Paiement de dépot")
+End Function
+'Extrait du libellé contenu dans la Cell passé en parm le tag #TRANSTEMP
+'
+'Exemple de libellé: #TRANSTEMP retour partiel du prêt d 2000 $ du 04.01.2016
+Private Function extractTranstempFromLibelle(cell As Range) As String
+    extractTranstempFromLibelle = extractItem(cell, "^(#TRANSTEMP) ")
 End Function
 'Extrait du libellé contenu dans la Cell passé en parm le numéro de pack
 'qu'il contient.
