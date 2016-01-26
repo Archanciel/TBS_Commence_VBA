@@ -321,11 +321,12 @@ End Function
 
 'Extrait du libellé d'annonce de bonus matrice Super Elite le pseudo du filleul.
 '
-'Exemple de libellé: SVIP level#1 bonus (jpensuisse)
+'Exemple de libellé: SVIP level#1 bonus (jpensuisse)    >>> old !
+'                    SVIP Network level#1 bonus (rosemaman)
 Private Function extractPseudoFilleulMatrixSE(cell As Range) As String
     Dim strPseudo As String
     
-    strPseudo = extractItem(cell, "^SVIP level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+    strPseudo = extractItem(cell, "^SVIP Network level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
     
 '    If (strPseudo = "") Then
 '        'essai avec la version française du libellé
@@ -356,7 +357,8 @@ End Function
 '
 'WARNING: TU NE CONNAIS PAS ENCORE AVEC CERTITUDE LES LIBELLES EXACTS !
 'Exemple de libellé: Niveau réseau Super Elite#1 bonus (tamcerise)
-'                    SVIP level#1 bonus (lucky70)
+'                    SVIP level#1 bonus (lucky70)   >>> old !
+'                    SVIP Network level#1 bonus (rosemaman)
 Private Function extractMatriceLevelMatrixSE(cell As Range) As String
     Dim strLevel As String
     
@@ -364,7 +366,7 @@ Private Function extractMatriceLevelMatrixSE(cell As Range) As String
     
     If (strLevel = "") Then
         'essai avec la version anglaise du libellé
-        strLevel = extractItem(cell, "^SVIP level#(\d*) bonus")
+        strLevel = extractItem(cell, "^SVIP Network level#(\d*) bonus")
     End If
     
     extractMatriceLevelMatrixSE = strLevel
