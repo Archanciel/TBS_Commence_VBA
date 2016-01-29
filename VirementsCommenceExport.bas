@@ -7,6 +7,10 @@ Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
 Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transfert temporaire de"    'Transfert de fonds temporaire sur notre BO
 Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transfert temporaire à"      'Transfert de fonds temporaire sur le BO du pseudo
+Private Const TYPE_VIREMENT_APPORT As String = "Apport"
+Private Const TYPE_VIREMENT_PROMO As String = "Promo"
+Private Const TYPE_VIREMENT_AUTRE As String = "Autre"
+Private Const TYPE_VIREMENT_VIREMENT_SUR_BO As String = "Virement sur BO"
 
 'Formate et traite les données issues des copy/paste des listes de virements en vue de leur
 'importation dans Commence
@@ -17,7 +21,6 @@ Sub handleVirements()
     Dim curRow As Long
     Dim uidVirementCol As Long
     Dim typeVirementCol As Long
-    Dim timePaiementCol As Long
     Dim lastCellRow As Long
     Dim virementSheetCalculatedCellsRange As Range
     Dim operationTag As String
@@ -29,6 +32,8 @@ Sub handleVirements()
     Dim compteContrepartieCol As Long
     Dim lookupTablesSheet As Worksheet
     Dim lookupRangePseudoContrat As Range
+    Dim opDateCol As Long
+    Dim opTimeCol As Long
     
     Application.ScreenUpdating = False
     
@@ -45,6 +50,8 @@ Sub handleVirements()
     montantOpCol = Range("MONTANT_VIREMENT").Column
     pseudoContrepartieCol = Range("PSEUDO_VIREMENT").Column
     compteContrepartieCol = Range("COMPTE_COUNTERPART_VIREMENT").Column
+    opDateCol = Range("DATE_VIREMENT").Column
+    opTimeCol = Range("TIME_VIREMENT").Column
     
     'clear col 8 à 10 qui contiennent les valeurs extraites par la suite de la macro
     Set virementSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, typeVirementCol), ActiveSheet.Cells(lastCellRow, uidVirementCol))
@@ -84,9 +91,7 @@ Sub handleVirements()
     '       si le MONTANT_OPERATION est négatif
     '           type virement = TYPE_VIREMENT_TEMPORAIRE_A
     '       end if
-    '       pseudo_virement = extract pseudo
-    '       compte contrepartie = getCompteForPseudo() from lookup table
-    '   sinon, si ...
+    '   sinon, traiter les autres types de virements ...
     For Each cell In rngLibelle
         If (cell.Value = "") Then
             Exit For
@@ -106,21 +111,27 @@ Sub handleVirements()
             End If
             'handle no contrat (inclu contrepartie
         Else
-            paiemenrPackId = extractPackIdFromLibelleSEMembershipCell(cell)
-            If (paiemenrPackId <> "") Then
-                'paiement pour cotisation SE
-                Cells(curRow, typeVirementCol).Value = PAIEMENT_TYPE_MEMBERSHIP_SE
+            If (isStringInLibelle(cell, "apport")) Then
+                'Exemple de libellé: Apport initial
+                '                    Apport initial pour pouvoir activer le compte (lib  ajouté à posteriori !)
+                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_APPORT
             Else
-                paiemenrPackId = extractPackIdFromLibellePremiumMembershipCell(cell)
-                If (paiemenrPackId <> "") Then
-                    'paiement pour cotisation Premium
-                    Cells(curRow, typeVirementCol).Value = PAIEMENT_TYPE_MEMBERSHIP_PREMIUM
+                If (isStringInLibelle(cell, "promo")) Then
+                    'Exemple de libellé: 5 % PROMO
+                    Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_PROMO
                 Else
-                    MsgBox "Libellé de paiement inconnu dans cellule " & cell.Address
-                    Exit For
+                    If (isStringInLibelle(cell, "wire transfer")) Then
+                        'Wire Transfer A 2015102900099516
+                        Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_VIREMENT_SUR_BO
+                    Else
+                        Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_AUTRE
+                    End If
                 End If
             End If
         End If
+        
+        'formatting virement UID
+        Cells(curRow, uidVirementCol).Value = Cells(curRow, pseudoContrepartieCol).Value & " " & Cells(curRow, opDateCol).Value & Cells(curRow, opTimeCol).Value
     Next cell
     
     clearAnySelection
@@ -156,10 +167,12 @@ Private Function extractPseudoContrepartieFromPseudoLibelle(cell As Range) As St
     arr = Split(cell.Value, " : ")
     
     If (UBound(arr) - LBound(arr)) > 0 Then
-        '" : " waa found in libellé de pseudo
+        '" : " was found in libellé de pseudo
         extractPseudoContrepartieFromPseudoLibelle = arr(1)
-    Else
+    ElseIf (InStr(1, cell.Value, "admin", vbTextCompare) <= 0) Then
         extractPseudoContrepartieFromPseudoLibelle = ""
+    Else
+        extractPseudoContrepartieFromPseudoLibelle = "Admin"
     End If
 End Function
 'Extrait du libellé contenu dans la Cell passé en parm le tag #TRANSTEMP
@@ -167,6 +180,19 @@ End Function
 'Exemple de libellé: #TRANSTEMP retour partiel du prêt d 2000 $ du 04.01.2016
 Private Function extractTranstempFromLibelle(cell As Range) As String
     extractTranstempFromLibelle = extractItem(cell, "^(#TRANSTEMP) ")
+End Function
+'Renvoie TRUE si le libellé contenu dans la Cell passé en parm contient le mot
+'passé en parm (case insensitive)
+Private Function isStringInLibelle(cell As Range, str As String) As Boolean
+    Dim index As Integer
+    
+    index = InStr(1, cell.Value, str, vbTextCompare)  'case insensitive
+    
+    If (index <= 0) Then
+        isStringInLibelle = False
+    Else
+        isStringInLibelle = True
+    End If
 End Function
 'Extrait du libellé contenu dans la Cell passé en parm le numéro de pack
 'qu'il contient.
