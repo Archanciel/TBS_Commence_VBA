@@ -23,6 +23,12 @@ Sub handleVirements()
     Dim operationTag As String
     Dim montantOpCol As Long
     Dim montantOp As Double
+    Dim rngPseudoLibelle As Range
+    Dim pseudoContrepartie As String
+    Dim pseudoContrepartieCol As Long
+    Dim compteContrepartieCol As Long
+    Dim lookupTablesSheet As Worksheet
+    Dim lookupRangePseudoContrat As Range
     
     Application.ScreenUpdating = False
     
@@ -31,10 +37,14 @@ Sub handleVirements()
     
     lastCellRow = getLastDataRow(ActiveSheet.Range("A:A"))
     Set rngLibelle = getDataRangeFromColRange(ActiveSheet.Range("LIBELLE_VIREMENT"))
+    Set rngPseudoLibelle = getDataRangeFromColRange(ActiveSheet.Range("PSEUDO_VIREMENT_LIBELLE"))
+    pseudoContrepartieCol = Range("PSEUDO_VIREMENT").Column
     
     uidVirementCol = Range("UID_VIREMENT").Column
     typeVirementCol = Range("TYPE_VIREMENT").Column
     montantOpCol = Range("MONTANT_VIREMENT").Column
+    pseudoContrepartieCol = Range("PSEUDO_VIREMENT").Column
+    compteContrepartieCol = Range("COMPTE_COUNTERPART_VIREMENT").Column
     
     'clear col 8 à 10 qui contiennent les valeurs extraites par la suite de la macro
     Set virementSheetCalculatedCellsRange = ActiveSheet.Range(ActiveSheet.Cells(2, typeVirementCol), ActiveSheet.Cells(lastCellRow, uidVirementCol))
@@ -42,6 +52,28 @@ Sub handleVirements()
     
     'au début, je n'utilisais pas systématiquement le tag #TRANSTEMP !!
     replaceInRange rngLibelle, "Retransfers", "#TRANSTEMP", False
+    
+    'initialize lookup table references
+    Set lookupTablesSheet = Sheets("Lookup tables")
+    
+    lastCellRow = getLastDataRow(lookupTablesSheet.Range("E:E"))
+    Set lookupRangePseudoContrat = lookupTablesSheet.Range(lookupTablesSheet.Cells(2, 6), lookupTablesSheet.Cells(lastCellRow, 7))
+    
+    'extraction du pseudo de la contrepartie et formatage du compte contrepartie
+    For Each cell In rngPseudoLibelle
+        If (cell.Value = "") Then
+            Exit For
+        End If
+        
+        curRow = cell.Row
+        
+        pseudoContrepartie = extractPseudoContrepartieFromPseudoLibelle(cell)
+        
+        If pseudoContrepartie <> "" Then
+            Cells(curRow, pseudoContrepartieCol).Value = pseudoContrepartie
+            Cells(curRow, compteContrepartieCol).Value = getCompteForPseudo(pseudoContrepartie, lookupRangePseudoContrat)
+        End If
+    Next
     
     'Règles de gestion:
     '
@@ -95,6 +127,16 @@ Sub handleVirements()
     
     Application.ScreenUpdating = True
 End Sub
+Private Function getCompteForPseudo(pseudoContrepartie As String, lookupRangePseudoContrat As Range) As String
+    Dim compteForPseudo As Variant
+    
+    compteForPseudo = Application.VLookup(pseudoContrepartie, lookupRangePseudoContrat, 2, False)
+    If IsError(compteForPseudo) Then
+        compteForPseudo = ""
+    End If
+    
+    getCompteForPseudo = compteForPseudo
+End Function
 'Extrait du libellé contenu dans la Cell passé en parm le numéro de pack
 'qu'il contient.
 '
@@ -103,6 +145,22 @@ End Sub
 'Exemple de libellé: #12934088431 Paiement de dépot
 Private Function extractPackIdFromLibelleDepotCell(cell As Range) As String
     extractPackIdFromLibelleDepotCell = extractItem(cell, "^#([0-9]+) Paiement de dépot")
+End Function
+'Extrait du libellé de pseudo contenu dans la Cell passé en parm le tag #TRANSTEMP
+'
+'Exemple de libellé de pseudo: Rose : rosemaman
+'                              Admin
+Private Function extractPseudoContrepartieFromPseudoLibelle(cell As Range) As String
+    Dim arr() As String
+    
+    arr = Split(cell.Value, " : ")
+    
+    If (UBound(arr) - LBound(arr)) > 0 Then
+        '" : " waa found in libellé de pseudo
+        extractPseudoContrepartieFromPseudoLibelle = arr(1)
+    Else
+        extractPseudoContrepartieFromPseudoLibelle = ""
+    End If
 End Function
 'Extrait du libellé contenu dans la Cell passé en parm le tag #TRANSTEMP
 '
