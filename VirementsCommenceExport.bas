@@ -17,7 +17,6 @@ Private Const TYPE_VIREMENT_VIREMENT_SUR_BO As String = "Virement sur BO"
 Sub handleVirements()
     Dim rngLibelle As Range
     Dim cell As Range
-    Dim paiemenrPackId As String
     Dim curRow As Long
     Dim uidVirementCol As Long
     Dim typeVirementCol As Long
@@ -212,4 +211,15 @@ End Function
 Private Function extractPackIdFromLibellePremiumMembershipCell(cell As Range) As String
     extractPackIdFromLibellePremiumMembershipCell = extractItem(cell, "^#([0-9]*) (Membership payment|Règlement adhésion)")
 End Function
+'Exporte les données de la feuille Transferts-virements dans un fichier texte tab separated pouvant être importé dans Commence
+Sub virementsExportDataForCommence()
+    Application.ScreenUpdating = False
+    ActiveWorkbook.Save
+    deleteNomComptes "NOM_COMPTES_V"
+    deleteTopRow
+    saveSheetAsTabDelimTxtFileTimeStamped ActiveSheet.Name
+    Application.ScreenUpdating = True
+    closeWithoutSave
+End Sub
+
 
