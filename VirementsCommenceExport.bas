@@ -5,8 +5,8 @@ Private Const PAIEMENT_TYPE_ACHAT_PACK As String = "Achat pack"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
-Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transfert temporaire de"    'Transfert de fonds temporaire sur notre BO
-Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transfert temporaire à"      'Transfert de fonds temporaire sur le BO du pseudo
+Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transtemp de pseudo"    'Transfert de fonds temporaire sur notre BO
+Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transtemp à pseudo"      'Transfert de fonds temporaire sur le BO du pseudo
 Private Const TYPE_VIREMENT_APPORT As String = "Apport"
 Private Const TYPE_VIREMENT_PROMO As String = "Promo"
 Private Const TYPE_VIREMENT_AUTRE As String = "Autre"
