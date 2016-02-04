@@ -160,6 +160,7 @@ Sub handleRevenues()
     importFlagCol = Range("GAIN_IMPORT").Column
     verifiedFlagCol = Range("GAIN_VERIFIED").Column
     
+    'initialize lookup table references
     Set lookupTablesSheet = Sheets("Lookup tables")
     
     lastCellRow = getLastDataRow(lookupTablesSheet.Range("A:A"))
@@ -328,6 +329,11 @@ Private Function extractPseudoFilleulMatrixSE(cell As Range) As String
     
     strPseudo = extractItem(cell, "^SVIP Network level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
     
+    If (strPseudo = "") Then
+        'essai avec la version level# du libellé
+        strPseudo = extractItem(cell, "^SVIP level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
+    End If
+    
 '    If (strPseudo = "") Then
 '        'essai avec la version française du libellé
 '        strPseudo = extractItem(cell, "^VIP Network level#\d* bonus \(([a-zA-Z0-9-_]+)\)")
@@ -367,6 +373,11 @@ Private Function extractMatriceLevelMatrixSE(cell As Range) As String
     If (strLevel = "") Then
         'essai avec la version anglaise du libellé
         strLevel = extractItem(cell, "^SVIP Network level#(\d*) bonus")
+    End If
+    
+    If (strLevel = "") Then
+        'essai avec la version SVIP level# du libellé
+        strLevel = extractItem(cell, "^SVIP level#(\d*) bonus")
     End If
     
     extractMatriceLevelMatrixSE = strLevel
