@@ -179,7 +179,7 @@ End Function
 'Exemple de libellé: #TRANSTEMP retour partiel du prêt d 2000 $ du 04.01.2016
 '                    #TRANSTEM retour partiel du prêt d 2000 $ du 04.01.2016 >>> libellé erroné #TRANSTEM au lieu de #TRANSTEMP !!!
 Private Function extractTranstempFromLibelle(cell As Range) As String
-    extractTranstempFromLibelle = extractItem(cell, "^(#TRANSTEM) ") 'traite le libellé erroné
+    extractTranstempFromLibelle = extractItem(cell, "^(#TRANSTEM[ P]+)") 'traite le libellé erroné
 End Function
 'Renvoie TRUE si le libellé contenu dans la Cell passé en parm contient le mot
 'passé en parm (case insensitive)
