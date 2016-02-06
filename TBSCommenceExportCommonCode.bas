@@ -270,8 +270,8 @@ Private Function isRangeEmpty(testedRange As Range) As Boolean
     Dim neFormulas As Range
     
     On Error Resume Next
-    Set neValues = Intersect(ActiveCell.EntireRow.SpecialCells(xlConstants), testedRange)
-    Set neFormulas = Intersect(ActiveCell.EntireRow.SpecialCells(xlFormulas), testedRange)
+    Set neValues = Intersect(Cells(2, 1).EntireRow.SpecialCells(xlConstants), testedRange)
+    Set neFormulas = Intersect(Cells(2, 1).EntireRow.SpecialCells(xlFormulas), testedRange)
     On Error GoTo 0
     
     If neValues Is Nothing And neFormulas Is Nothing Then
