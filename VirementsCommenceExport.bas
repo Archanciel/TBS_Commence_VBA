@@ -36,6 +36,8 @@ Sub handleVirements()
     
     Application.ScreenUpdating = False
     
+    terminateIfNoData Cells(2, Range("LIBELLE_VIREMENT").Column)
+    
     formatDateAndTime "DATE_VIREMENT", "TIME_VIREMENT"
     transformMontant "MONTANT_VIREMENT"
     

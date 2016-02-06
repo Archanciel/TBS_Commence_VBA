@@ -255,6 +255,33 @@ Sub deleteTopRow()
     Selection.Delete Shift:=xlUp
 End Sub
 
+'Stop processing if the passed range contains no data
+Sub terminateIfNoData(testedRange As Range)
+    If (isRangeEmpty(testedRange)) Then
+        MsgBox "Feuille vide, pas de données à processer, macro interrompue !", vbExclamation
+        clearAnySelection
+        Application.ScreenUpdating = True
+        End
+    End If
+End Sub
+
+Private Function isRangeEmpty(testedRange As Range) As Boolean
+    Dim neValues As Range
+    Dim neFormulas As Range
+    
+    On Error Resume Next
+    Set neValues = Intersect(ActiveCell.EntireRow.SpecialCells(xlConstants), testedRange)
+    Set neFormulas = Intersect(ActiveCell.EntireRow.SpecialCells(xlFormulas), testedRange)
+    On Error GoTo 0
+    
+    If neValues Is Nothing And neFormulas Is Nothing Then
+        isRangeEmpty = True
+    Else
+        isRangeEmpty = False
+    End If
+End Function
+
+
 
 
 

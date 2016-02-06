@@ -20,6 +20,8 @@ Sub handlePaiements()
     
     Application.ScreenUpdating = False
     
+    terminateIfNoData Cells(2, Range("PAIEMENT_LIBELLE").Column)
+    
     formatDateAndTime "DATE_OP", "TIME_OP"
     transformMontant "MONTANT_PAIEMENT"
     formatIdCol "PAIEMENT_ID"
@@ -58,7 +60,7 @@ Sub handlePaiements()
                     'paiement pour cotisation Premium
                     Cells(curRow, typePaiementCol).Value = PAIEMENT_TYPE_MEMBERSHIP_PREMIUM
                 Else
-                    MsgBox "Libellé de paiement inconnu dans cellule " & cell.Address
+                    MsgBox "Libellé de paiement inconnu dans cellule " & cell.Address & " !", vbInformation
                     Exit For
                 End If
             End If

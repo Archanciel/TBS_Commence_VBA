@@ -39,6 +39,9 @@ End Sub
 'dans Commence
 Sub packsFormatAndSortData()
     Application.ScreenUpdating = False
+    
+    terminateIfNoData Cells(2, Range("RENDEMENT_PACK").Column)
+    
     formatIdCol ("NOM_PACK")
     formatDateAndTime "DATE_ACHAT", "TIME_ACHAT_PACK"
     'adapte col width for id pack
@@ -141,6 +144,9 @@ Sub handleRevenues()
     Dim verifiedFlagCol As Long
     
     Application.ScreenUpdating = False
+    
+    terminateIfNoData Cells(2, Range("LIBELLE").Column)
+    
     windowsWideThousandSeparator = Application.International(xlThousandsSeparator)
     
     formatDateAndTime "DATE_GAIN_COL", "TIME_GAIN"
@@ -241,7 +247,7 @@ Sub handleRevenues()
                                 Cells(curRow, idGainCol).Value = pseudoFilleul & "-UPGR_SE-" & Format(Cells(curRow, dateGainCol).Value2, "dd.mm.yy")
                             Else
                                 Cells(curRow, typeGainCol).Value = "### LIBELLE DE GAIN INCONNU ###"
-                                MsgBox "Libellé de gain inconnu dans cellule " & cell.Address
+                                MsgBox "Libellé de gain inconnu dans cellule " & cell.Address & " !", vbInformation
                                 Exit For
                             End If
                         End If
