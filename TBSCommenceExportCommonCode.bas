@@ -281,6 +281,27 @@ Private Function isRangeEmpty(testedRange As Range) As Boolean
     End If
 End Function
 
+Sub clearSheet()
+    Dim delRange As Range
+    Dim topLeftTitleCell As Range
+    Dim topLeftDataCell As Range
+    Dim ans As Long
+    
+    Set topLeftTitleCell = Range("A1")
+    Set topLeftDataCell = Range("A2")
+    Set delRange = Range(topLeftDataCell, Cells(topLeftDataCell.End(xlDown).Row, topLeftTitleCell.End(xlToRight).Column))
+    
+    delRange.Select
+    ans = MsgBox("Supprimer la sélection ?", vbYesNo + vbExclamation)
+    
+    If ans <> vbYes Then
+        clearAnySelection
+        Exit Sub
+    Else
+        delRange.Clear
+    End If
+End Sub
+
 
 
 
