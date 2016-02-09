@@ -5,8 +5,10 @@ Private Const PAIEMENT_TYPE_ACHAT_PACK As String = "Achat pack"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
-Private Const TYPE_VIREMENT_TEMPORAIRE_DE As String = "Transtemp de pseudo"    'Transfert de fonds temporaire sur notre BO
-Private Const TYPE_VIREMENT_TEMPORAIRE_A As String = "Transtemp à pseudo"      'Transfert de fonds temporaire sur le BO du pseudo
+Private Const TYPE_VIREMENT_TEMPORAIRE_DE_PSEUDO As String = "Transtemp de pseudo"    'Transfert de fonds temporaire sur notre BO
+Private Const TYPE_VIREMENT_TEMPORAIRE_A_PSEUDO As String = "Transtemp à pseudo"      'Transfert de fonds temporaire sur le BO du pseudo
+Private Const TYPE_VIREMENT_CONTRE_CASH_DE_PSEUDO As String = "Transf contre cash de pseudo"    'Transfert de fonds du pseudo contre mon virement sur le compte bancaire de celui-ci
+Private Const TYPE_VIREMENT_CONTRE_CASH_A_PSEUDO As String = "Transf contre cash à pseudo"      'Transfert de fonds au pseudo contre un virement de celui-ci sur notre compte bancaire
 Private Const TYPE_VIREMENT_APPORT As String = "Apport"
 Private Const TYPE_VIREMENT_PROMO As String = "Promo"
 Private Const TYPE_VIREMENT_AUTRE As String = "Autre"
@@ -88,11 +90,17 @@ Sub handleVirements()
     'pour chaque cellule de la colonne LIBELLE_VIREMENT,
     '   si le libellé contient #TRANSTEMP
     '       si le MONTANT_OPERATION est positif
-    '           type virement = TYPE_VIREMENT_TEMPORAIRE_DE
+    '           type virement = TYPE_VIREMENT_TEMPORAIRE_DE_PSEUDO
     '       si le MONTANT_OPERATION est négatif
-    '           type virement = TYPE_VIREMENT_TEMPORAIRE_A
+    '           type virement = TYPE_VIREMENT_TEMPORAIRE_A_PSEUDO
     '       end if
-    '   sinon, traiter les autres types de virements ...
+    '   sinon si le libellé contient #TRANSCASH
+    '       si le MONTANT_OPERATION est positif
+    '           type virement = TYPE_VIREMENT_CONTRE_CASH_DE_PSEUDO
+    '       si le MONTANT_OPERATION est négatif
+    '           type virement = TYPE_VIREMENT_CONTRE_CASH_A_PSEUDO
+    '       end if
+    '   traiter les autres types de virements ...
     For Each cell In rngLibelle
         If (cell.Value = "") Then
             Exit For
@@ -106,26 +114,38 @@ Sub handleVirements()
             'nous sommes en présence d'un transfert temporaire
             montantOp = Cells(curRow, montantOpCol).Value
             If montantOp >= 0 Then
-                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_TEMPORAIRE_DE
+                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_TEMPORAIRE_DE_PSEUDO
             Else
-                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_TEMPORAIRE_A
+                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_TEMPORAIRE_A_PSEUDO
             End If
             'handle no contrat (inclu contrepartie
         Else
-            If (isStringInLibelle(cell, "apport")) Then
-                'Exemple de libellé: Apport initial
-                '                    Apport initial pour pouvoir activer le compte (lib  ajouté à posteriori !)
-                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_APPORT
-            Else
-                If (isStringInLibelle(cell, "promo")) Then
-                    'Exemple de libellé: 5 % PROMO
-                    Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_PROMO
+            operationTag = extractTranscashFromLibelle(cell)
+            If (operationTag <> "") Then
+                'nous sommes en présence d'un transfert de cash
+                montantOp = Cells(curRow, montantOpCol).Value
+                If montantOp >= 0 Then
+                    Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_CONTRE_CASH_DE_PSEUDO
                 Else
-                    If (isStringInLibelle(cell, "wire transfer")) Then
-                        'Wire Transfer A 2015102900099516
-                        Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_VIREMENT_SUR_BO
+                    Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_CONTRE_CASH_A_PSEUDO
+                End If
+                'handle no contrat (inclu contrepartie
+            Else
+                If (isStringInLibelle(cell, "apport")) Then
+                    'Exemple de libellé: Apport initial
+                    '                    Apport initial pour pouvoir activer le compte (lib  ajouté à posteriori !)
+                    Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_APPORT
+                Else
+                    If (isStringInLibelle(cell, "promo")) Then
+                        'Exemple de libellé: 5 % PROMO
+                        Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_PROMO
                     Else
-                        Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_AUTRE
+                        If (isStringInLibelle(cell, "wire transfer")) Then
+                            'Wire Transfer A 2015102900099516
+                            Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_VIREMENT_SUR_BO
+                        Else
+                            Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_AUTRE
+                        End If
                     End If
                 End If
             End If
@@ -182,6 +202,12 @@ End Function
 '                    #TRANSTEM retour partiel du prêt d 2000 $ du 04.01.2016 >>> libellé erroné #TRANSTEM au lieu de #TRANSTEMP !!!
 Private Function extractTranstempFromLibelle(cell As Range) As String
     extractTranstempFromLibelle = extractItem(cell, "^(#TRANSTEM[ P]+)") 'traite le libellé erroné
+End Function
+'Extrait du libellé contenu dans la Cell passé en parm le tag #TRANSTEMP
+'
+'Exemple de libellé: #TRANSCASH pour demande Antoine pr mail le 8.2.2016 de 3000 $
+Private Function extractTranscashFromLibelle(cell As Range) As String
+    extractTranscashFromLibelle = extractItem(cell, "^(#TRANSCASH+)")
 End Function
 'Renvoie TRUE si le libellé contenu dans la Cell passé en parm contient le mot
 'passé en parm (case insensitive)
