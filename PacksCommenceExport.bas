@@ -122,17 +122,17 @@ End Sub
 'la feuille Packs
 Private Sub writeNomComptes()
     ActiveSheet.Range("NOM_COMPTES").Select
-    ActiveCell.FormulaR1C1 = "Compte TBS Antoine"
+    ActiveCell.FormulaR1C1 = "TBS Antoine"
     ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = "Compte TBS Béatrice"
+    ActiveCell.FormulaR1C1 = "TBS Béatrice"
     ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = "Compte TBS JPS"
+    ActiveCell.FormulaR1C1 = "TBS JPS"
     ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = "Compte TBS Maman"
+    ActiveCell.FormulaR1C1 = "TBS Maman"
     ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = "Compte TBS Papa"
+    ActiveCell.FormulaR1C1 = "TBS Papa"
     ActiveCell.Offset(1, 0).Select
-    ActiveCell.FormulaR1C1 = "Compte TBS Tamara"
+    ActiveCell.FormulaR1C1 = "TBS Tamara"
 End Sub
 
 'Sub appelée par packsFormatAndSortData()
