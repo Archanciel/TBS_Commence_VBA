@@ -152,7 +152,7 @@ Sub handleVirements()
         End If
         
         'formatting virement UID
-        Cells(curRow, uidVirementCol).Value = Cells(curRow, pseudoContrepartieCol).Value & Cells(curRow, typeVirementCol).Value & Cells(curRow, opDateCol).Value & Cells(curRow, opTimeCol).Value
+        Cells(curRow, uidVirementCol).Value = Cells(curRow, pseudoContrepartieCol).Value & Right(Cells(curRow, typeVirementCol).Value, 15) & Cells(curRow, opDateCol).Value & Cells(curRow, opTimeCol).Value
     Next cell
     
     clearAnySelection
