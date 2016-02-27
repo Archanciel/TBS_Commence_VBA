@@ -9,6 +9,7 @@ Private Const TYPE_VIREMENT_TEMPORAIRE_DE_PSEUDO As String = "Transtemp de pseud
 Private Const TYPE_VIREMENT_TEMPORAIRE_A_PSEUDO As String = "Transtemp à pseudo"      'Transfert de fonds temporaire sur le BO du pseudo
 Private Const TYPE_VIREMENT_CONTRE_CASH_DE_PSEUDO As String = "Transf contre cash de pseudo"    'Transfert de fonds du pseudo contre mon virement sur le compte bancaire de celui-ci
 Private Const TYPE_VIREMENT_CONTRE_CASH_A_PSEUDO As String = "Transf contre cash à pseudo"      'Transfert de fonds au pseudo contre un virement de celui-ci sur notre compte bancaire
+Private Const TYPE_VIREMENT_REMBOURSEMENT_A_PSEUDO As String = "Remboursement apport" 'Transfert de fonds sur le BO du pseudo pour rembourser l'apport avancé par celui-ci
 Private Const TYPE_VIREMENT_APPORT As String = "Apport"
 Private Const TYPE_VIREMENT_PROMO As String = "Promo"
 Private Const TYPE_VIREMENT_AUTRE As String = "Autre"
@@ -131,20 +132,25 @@ Sub handleVirements()
                 End If
                 'handle no contrat (inclu contrepartie
             Else
-                If (isStringInLibelle(cell, "apport")) Then
+                If (isStringInLibelle(cell, "Apport")) Then
                     'Exemple de libellé: Apport initial
                     '                    Apport initial pour pouvoir activer le compte (lib  ajouté à posteriori !)
                     Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_APPORT
                 Else
-                    If (isStringInLibelle(cell, "promo")) Then
+                    If (isStringInLibelle(cell, "PROMO")) Then
                         'Exemple de libellé: 5 % PROMO
                         Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_PROMO
                     Else
-                        If (isStringInLibelle(cell, "wire transfer")) Then
-                            'Wire Transfer A 2015102900099516
+                        If (isStringInLibelle(cell, "Wire Transfer")) Then
+                            'Exemple de libellé: Wire Transfer A 2015102900099516
                             Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_VIREMENT_SUR_BO
                         Else
-                            Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_AUTRE
+                            If (isStringInLibelle(cell, "#Rembours")) Then
+                                'Exemple de libellé: #Rembours partiel apport initial
+                                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_REMBOURSEMENT_A_PSEUDO
+                            Else
+                                Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_AUTRE
+                            End If
                         End If
                     End If
                 End If
@@ -214,7 +220,7 @@ End Function
 Private Function isStringInLibelle(cell As Range, str As String) As Boolean
     Dim index As Integer
     
-    index = InStr(1, cell.Value, str, vbTextCompare)  'case insensitive
+    index = InStr(1, cell.Value, str, vbBinaryCompare)   'case sensitive
     
     If (index <= 0) Then
         isStringInLibelle = False
