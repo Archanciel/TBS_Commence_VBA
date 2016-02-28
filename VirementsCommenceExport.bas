@@ -132,9 +132,10 @@ Sub handleVirements()
                 End If
                 'handle no contrat (inclu contrepartie
             Else
-                If (isStringInLibelle(cell, "Apport")) Then
-                    'Exemple de libellé: Apport initial
-                    '                    Apport initial pour pouvoir activer le compte (lib  ajouté à posteriori !)
+                If (isStringInLibelle(cell, "#Apport")) Then
+                    'Exemple de libellé: le # a été ajouté le 28.02.2016 !
+                    '                    #Apport initial
+                    '                    #Apport initial pour pouvoir activer le compte (lib  ajouté à posteriori !)
                     Cells(curRow, typeVirementCol).Value = TYPE_VIREMENT_APPORT
                 Else
                     If (isStringInLibelle(cell, "PROMO")) Then
@@ -220,7 +221,7 @@ End Function
 Private Function isStringInLibelle(cell As Range, str As String) As Boolean
     Dim index As Integer
     
-    index = InStr(1, cell.Value, str, vbBinaryCompare)   'case sensitive
+    index = InStr(1, cell.Value, str, vbTextCompare)   'case insensitive
     
     If (index <= 0) Then
         isStringInLibelle = False
