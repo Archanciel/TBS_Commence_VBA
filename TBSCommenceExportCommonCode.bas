@@ -9,7 +9,7 @@ Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = 
 '
 ' Copie le nom de compte actif dans les cellules vides de la colonne COMPTE
 '
-' Touche de raccourci du clavier: Ctrl+Shift+N
+' Touche de raccourci du clavier: Ctrl+Shift+N (N for account Name)
 '
     Dim firstEmptyCellRow As Long
     Dim lastEmptyCellRow As Long
@@ -44,6 +44,77 @@ Attribute MacroCopySelectedAccountNameInEmptyCells.VB_ProcData.VB_Invoke_Func = 
     ActiveSheet.Paste
 End Sub
 
+Sub MacroFormatMatchingTagForMultipleTranstempRows()
+Attribute MacroFormatMatchingTagForMultipleTranstempRows.VB_ProcData.VB_Invoke_Func = "M\n14"
+'
+' 1/ build a matching string tag using the smallest date/time stamp of the selected rows (not necessarily contiguous).
+' 2/ copy the matching tag into the empty TRANSTEMP_MATCHING_MANUAL_TAG cell of the multi selected rows
+'
+' Touche de raccourci du clavier: Ctrl+Shift+M (M for Matching)
+'
+    Dim rngSelection As Range
+    Dim rngSelectionArea As Range
+    Dim rngCell As Range
+    Dim lngRow As Long
+    Dim lngActualRow As Long
+    Dim strMatchingTag As String
+    Dim strDateTimeStamp As String
+    Dim lngDateVirementCol As Long
+    Dim lngMatchingTagCol As Long
+    Dim datTmpDate As Date
+    Dim datSmallestDate As Date
+    Dim strSmallestDate As String
+    
+    lngDateVirementCol = Range("DATE_VIREMENT").Column
+    lngMatchingTagCol = Range("TRANSTEMP_MATCHING_MANUAL_TAG").Column
+    datSmallestDate = Now
+
+    ' Get the current selection
+    Set rngSelection = Application.Selection
+
+    ' Walk through the areas to get smallest operation date
+    For Each rngSelectionArea In rngSelection.Areas
+        ' Walk through the rows
+        For lngRow = 1 To rngSelectionArea.Rows.Count Step 1
+            ' Get the row reference
+            Set rngCell = rngSelectionArea.Rows(lngRow)
+
+            ' Get the actual row index (in the worksheet).
+            ' The other row index is relative to the collection.
+            lngActualRow = rngCell.Row
+
+            ' Get any cell value by using the actual row index
+            ' Example:
+            strDateTimeStamp = ActiveSheet.Cells(lngActualRow, lngDateVirementCol).Value
+            datTmpDate = CDate(strDateTimeStamp)
+            
+            If (datSmallestDate > datTmpDate) Then
+                datSmallestDate = datTmpDate
+                strSmallestDate = strDateTimeStamp
+            End If
+        Next
+    Next
+    
+    strMatchingTag = "A-" & strSmallestDate
+    MsgBox strMatchingTag
+
+    ' Walk through the areas to paste the matching tag
+    For Each rngSelectionArea In rngSelection.Areas
+        ' Walk through the rows
+        For lngRow = 1 To rngSelectionArea.Rows.Count Step 1
+            ' Get the row reference
+            Set rngCell = rngSelectionArea.Rows(lngRow)
+
+            ' Get the actual row index (in the worksheet).
+            ' The other row index is relative to the collection.
+            lngActualRow = rngCell.Row
+
+            ' Get any cell value by using the actual row index
+            ' Example:
+            ActiveSheet.Cells(lngActualRow, lngMatchingTagCol).Value = strMatchingTag
+        Next
+    Next
+End Sub
 Sub clearAnySelection()
     Application.CutCopyMode = False
     ActiveSheet.Range("A1").Select
