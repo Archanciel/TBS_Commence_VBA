@@ -65,6 +65,9 @@ Attribute MacroFormatMatchingTagForMultipleTranstempRows.VB_ProcData.VB_Invoke_F
     Dim datSmallestDate As Date
     Dim strSmallestDate As String
     
+    On Error GoTo errorhandler
+    
+    ensureWorksheetIs ("Transferts-virements")
     lngDateVirementCol = Range("DATE_VIREMENT").Column
     lngMatchingTagCol = Range("TRANSTEMP_MATCHING_MANUAL_TAG").Column
     datSmallestDate = Now
@@ -95,8 +98,9 @@ Attribute MacroFormatMatchingTagForMultipleTranstempRows.VB_ProcData.VB_Invoke_F
         Next
     Next
     
+    'stripping out last ":00" chars
+    strSmallestDate = Left(strSmallestDate, Len(strSmallestDate) - 3)
     strMatchingTag = "A-" & strSmallestDate
-    MsgBox strMatchingTag
 
     ' Walk through the areas to paste the matching tag
     For Each rngSelectionArea In rngSelection.Areas
@@ -114,6 +118,17 @@ Attribute MacroFormatMatchingTagForMultipleTranstempRows.VB_ProcData.VB_Invoke_F
             ActiveSheet.Cells(lngActualRow, lngMatchingTagCol).Value = strMatchingTag
         Next
     Next
+    
+    Exit Sub
+errorhandler:
+    MsgBox "Erreur: " & Err.Number & vbCrLf & Err.Description & ". Macro interrompue !", vbCritical
+    Exit Sub
+End Sub
+Sub ensureWorksheetIs(strWorksheetName As String)
+    If (ActiveSheet.Name <> strWorksheetName) Then
+        MsgBox "Cette macro ne s'applique qu'à la feuille " & strWorksheetName & " !", vbExclamation
+        End
+    End If
 End Sub
 Sub clearAnySelection()
     Application.CutCopyMode = False
