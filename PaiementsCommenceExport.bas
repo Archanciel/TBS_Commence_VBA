@@ -2,6 +2,7 @@ Attribute VB_Name = "PaiementsCommenceExport"
 Option Explicit
 
 Private Const PAIEMENT_TYPE_ACHAT_PACK As String = "Achat pack"
+Private Const PAIEMENT_TYPE_MEMBERSHIP_OMEGA As String = "Cotisation Omega"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_SE As String = "Cotisation SE"
 Private Const PAIEMENT_TYPE_MEMBERSHIP_PREMIUM As String = "Cotisation Premium"
 
@@ -60,8 +61,14 @@ Sub handlePaiements()
                     'paiement pour cotisation Premium
                     Cells(curRow, typePaiementCol).Value = PAIEMENT_TYPE_MEMBERSHIP_PREMIUM
                 Else
-                    MsgBox "Libellé de paiement inconnu dans cellule " & cell.Address & " !", vbInformation
-                    Exit For
+                    paiemenrPackId = extractPackIdFromLibelleOmegaMembershipCell(cell)
+                    If (paiemenrPackId <> "") Then
+                        'paiement pour cotisation Omega
+                        Cells(curRow, typePaiementCol).Value = PAIEMENT_TYPE_MEMBERSHIP_OMEGA
+                    Else
+                        MsgBox "Libellé de paiement inconnu dans cellule " & cell.Address & " !", vbInformation
+                        Exit For
+                    End If
                 End If
             End If
         End If
@@ -109,3 +116,13 @@ End Function
 Private Function extractPackIdFromLibellePremiumMembershipCell(cell As Range) As String
     extractPackIdFromLibellePremiumMembershipCell = extractItem(cell, "^#([0-9]*) (Membership payment|Règlement adhésion)")
 End Function
+'Extrait du libellé contenu dans la Cell passé en parm le numéro de pack
+'qu'il contient.
+'
+'Précond: le no de pack se trouve au début du libellé !
+'
+'Exemple de libellé: #134390321226 OMEGA payment
+Private Function extractPackIdFromLibelleOmegaMembershipCell(cell As Range) As String
+    extractPackIdFromLibelleOmegaMembershipCell = extractItem(cell, "^#([0-9]*) Omega payment")
+End Function
+
